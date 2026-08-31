@@ -174,9 +174,7 @@ if [[ $MISSING -eq 0 ]]; then
 else
     echo -e "${YELLOW}Some required dependencies are missing.${NC}"
     echo ""
-    echo "To fix:"
-    echo "  • Arch:  Re-run install-arch.sh or install missing packages with pacman/yay"
-    echo "  • NixOS: Re-run install-nix.sh or add packages to your flake.nix"
+    echo "To fix:  re-run dots-extra/install-arch.sh, or:  sudo pacman -S <pkg>"
     echo ""
     exit 1
 fi

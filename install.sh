@@ -62,12 +62,8 @@ if [[ -f /etc/os-release ]]; then
             log_ok "Distro: ${ID} (Arch-based)"
             DISTRO_TYPE="arch"
             ;;
-        nixos)
-            log_ok "Distro: NixOS"
-            DISTRO_TYPE="nix"
-            ;;
         *)
-            die "Unsupported distro: ${ID:-unknown}. Supported: Arch-based, NixOS."
+            die "Unsupported distro: ${ID:-unknown}. Ghost supports Arch-based distros."
             ;;
     esac
 else
