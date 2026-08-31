@@ -370,7 +370,7 @@ StatCard {
                         Text {
                             visible: btn.sublabel !== ""
                             text:    btn.sublabel
-                            font.pixelSize: 8; font.family: "JetBrains Mono"
+                            font.pixelSize: 8; font.family: Theme.fontMono
                             color: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.65)
                             width: btn.width - 18; elide: Text.ElideRight
                         }

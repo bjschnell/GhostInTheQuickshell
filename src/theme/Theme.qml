@@ -69,4 +69,11 @@ QtObject {
     property int wsRadius:      Metrics.wsRadius
 
     property int animDuration: Metrics.animDuration
+
+    // Typography
+    // The nerd-patched family is a superset of plain JetBrains Mono, so one
+    // name covers both text and glyph use. The unpatched plain family is NOT
+    // provided by ttf-jetbrains-mono-nerd, so asking for it by that name
+    // silently fell back to the default sans.
+    property string fontMono: 'JetBrainsMono Nerd Font'
 }

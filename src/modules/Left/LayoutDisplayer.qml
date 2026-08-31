@@ -156,7 +156,7 @@ Item {
             id: icon
             anchors.centerIn: parent
             text: root.currentLayout !== "" ? layoutSymbol(root.currentLayout) : "…"
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontMono
             font.pixelSize: 14
             color: "#cdd6f4"
 

@@ -545,7 +545,7 @@ Item {
 									anchors.verticalCenter: parent.verticalCenter
 									text:           ScreenRecService.elapsedDisplay
 									font.pixelSize: 13; font.weight: Font.Bold
-									font.family:    "JetBrains Mono"
+									font.family:    Theme.fontMono
 									color:          Theme.text
 								}
 							}

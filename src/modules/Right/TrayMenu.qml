@@ -166,7 +166,7 @@ PopupWindow {
                                 text: root.cleanLabel(entry.modelData.text)
                                 color: entry.modelData.enabled ? Theme.text : Theme.subtext
                                 opacity: entry.modelData.enabled ? 1 : 0.5
-                                font.family: "JetBrains Mono"
+                                font.family: Theme.fontMono
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
                                 verticalAlignment: Text.AlignVCenter
@@ -179,7 +179,7 @@ PopupWindow {
                                 rotation: entry.subExpanded ? 90 : 0
                                 Behavior on rotation { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
                                 color: Theme.subtext
-                                font.family: "JetBrains Mono"
+                                font.family: Theme.fontMono
                                 font.pixelSize: 14
                             }
                         }
@@ -234,7 +234,7 @@ PopupWindow {
                                         text: root.cleanLabel(subRow.modelData.text)
                                         color: subRow.modelData.enabled ? Theme.text : Theme.subtext
                                         opacity: subRow.modelData.enabled ? 1 : 0.5
-                                        font.family: "JetBrains Mono"
+                                        font.family: Theme.fontMono
                                         font.pixelSize: 11
                                         elide: Text.ElideRight
                                     }
