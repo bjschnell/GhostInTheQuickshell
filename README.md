@@ -91,13 +91,15 @@ The installer automatically:
 
 ### Core Dependencies
 
+Everything below ships in Arch's official repos — Ghost needs no AUR helper
+and builds nothing from source.
+
 <details open>
 <summary><b>Runtime & Rendering</b></summary>
 
 - **Hyprland** v0.55+ – Wayland compositor
 - **Quickshell** – QML shell framework
-- **Qt6** – Qt6 libraries and QML engine
-- **qt6ct** – Qt6 theme configuration
+- **qt6-base**, **qt6-declarative** – Qt6 libraries and QML engine
 
 </details>
 
@@ -105,12 +107,12 @@ The installer automatically:
 <summary><b>System Tools</b></summary>
 
 - **PipeWire** – Audio server (pipewire, pipewire-pulse, wireplumber)
-- **NetworkManager** – Network management
-- **BlueZ** – Bluetooth stack (bluez, bluez-utils)
-- **Mpris** – Media Retrival
-- **Playerctl** – Player controls
+- **libpulse** – Provides `pactl`, used for all audio control
+- **NetworkManager** – Network management (`nmcli`)
+- **BlueZ** – Bluetooth stack (bluez, bluez-utils → `bluetoothctl`)
 - **libnotify** – Desktop notifications
 - **Polkit** – Privilege escalation
+- **python** – Helper scripts (stdlib only; no pip packages)
 - **wl-clipboard** – Wayland clipboard (wl-copy/wl-paste)
 
 </details>
@@ -129,6 +131,7 @@ The installer automatically:
 
 - **wf-recorder** – Screen recording (Wayland)
 - **cava** – Audio visualizer
+- **mpv** – Opens finished recordings from the notification action
 - **slurp** – Region/window selection
 - **wtype** – Keyboard input emulation
 - **cliphist** – Clipboard history manager
@@ -149,6 +152,7 @@ The installer automatically:
 - **hypridle** – Idle management daemon
 - **hyprsunset** – Blue light filter
 - **hyprshutdown** – Graceful shutdown
+- **hyprpolkitagent** – Polkit authentication agent
 - **xdg-desktop-portal-hyprland** – Portal backend
 
 </details>
@@ -156,43 +160,11 @@ The installer automatically:
 <details open>
 <summary><b>Fonts</b></summary>
 
-- **ttf-jetbrains-mono-nerd** – Primary font (Nerd Font variant)
-- **ttf-noto-nerd** – Emoji and CJK support
+- **ttf-jetbrains-mono-nerd** – Provides the `JetBrainsMono Nerd Font` family
+  named by `Theme.fontMono`; the patched build carries the icon glyphs, so no
+  separate symbols package is required.
 
 </details>
-
----
-
-<h2>
-  Roadmap
-</h2>
-
-### Current (v0.1.0)
-
-- [x] Core shell framework
-- [x] System monitoring dashboard
-- [x] Keybind editor with live conflict detection
-- [x] Network management (WiFi, Bluetooth, VPN)
-- [x] Audio control panel
-- [x] Screen recording integration
-- [x] Clipboard manager
-- [x] Material You color integration
-- [x] Lua config generation
-- [x] Professional installer (Arch/NixOS)
-- [x] Auto-update mechanism
-
-### Upcoming (Post-v0.1.0)
-
-- [ ] Scaling on Different Screen-Sizes
-- [ ] Config Pages for Shell Customization
-- [ ] Multi-Monitor Support
-- [ ] Additional theme options
-- [ ] App launcher enhancements (pinned/recent)
-- [ ] Unified popup configuration layer
-- [ ] Extended documentation
-- [ ] Community themes
-- [ ] CLI
-- [ ] More Linux distribution support
 
 ---
 
