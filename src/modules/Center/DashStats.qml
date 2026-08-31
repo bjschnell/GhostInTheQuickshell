@@ -31,7 +31,7 @@ Item {
             spacing: 8
 
             StatCard {
-                width:  (parent.width - parent.spacing * 3) / 4
+                width:  (parent.width - parent.spacing * 2) / 3
                 height: parent.height
                 Speedometer {
                     anchors.centerIn: parent
@@ -45,7 +45,7 @@ Item {
             }
 
             StatCard {
-                width:  (parent.width - parent.spacing * 3) / 4
+                width:  (parent.width - parent.spacing * 2) / 3
                 height: parent.height
                 Speedometer {
                     anchors.centerIn: parent
@@ -59,21 +59,7 @@ Item {
             }
 
             StatCard {
-                width:  (parent.width - parent.spacing * 3) / 4
-                height: parent.height
-                Speedometer {
-                    anchors.centerIn: parent
-                    label:       "iGPU"
-                    percent:     gpu.igpu.active ? gpu.igpu.usagePercent : 0
-                    centerText:  gpu.igpu.active ? (gpu.igpu.usagePercent + "%") : "—"
-                    bottomText:  gpu.igpu.active ? gpu.igpu.curMhz : ""
-                    active:      gpu.igpu.active
-                    accentColor: "#89dceb"
-                }
-            }
-
-            StatCard {
-                width:  (parent.width - parent.spacing * 3) / 4
+                width:  (parent.width - parent.spacing * 2) / 3
                 height: parent.height
                 Speedometer {
                     anchors.centerIn: parent

@@ -44,7 +44,6 @@
 - **Material You Integration** — Dynamic colors via Matugen
 - **Lua-Based Config** — Hyprland v0.55+ compatible
 - **System Dashboard** — Monitor CPU, RAM, GPU, temps, disks and network
-- **Kanban/Tasks** — To Do, Ongoing and Competed lists with Prioiry and Deadlines
 - **App Launcher** — Dropdown App Launcher
 - **Keybinds** — Set your own keybinds for each popup
 - **Theming Engine** — Live wallpaper-synced color updates

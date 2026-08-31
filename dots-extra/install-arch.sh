@@ -408,7 +408,6 @@ import subprocess, json, os, sys
 DEFAULTS = {
     "dashboard-home":      {"mods": "SUPER",        "key": "D",      "label": "Dashboard: System"},
     "dashboard-stats":     {"mods": "CTRL + SHIFT", "key": "ESCAPE", "label": "Dashboard: Home"},
-    "dashboard-kanban":    {"mods": "SUPER",        "key": "Z",      "label": "Dashboard: Tasks"},
     "dashboard-launcher":  {"mods": "SUPER",        "key": "Q",      "label": "Dashboard: Apps"},
     "dashboard-config":    {"mods": "SUPER",        "key": "C",      "label": "Dashboard: Config"},
     "PowerMenu-toggle":    {"mods": "SUPER",        "key": "ESCAPE", "label": "Power Menu"},

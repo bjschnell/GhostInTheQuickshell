@@ -52,24 +52,6 @@ QtObject {
         }
     }
 
-    property var dashboardKanban: IpcHandler {
-        target: "dashboard-kanban"
-        function toggle() {
-            if(Popups.anyOpen && !Popups.dashboardOpen){
-                Popups.closeAll()
-                Popups.dashboardOpen = true
-                Popups.dashboardPage = "kanban"
-            } else if(Popups.dashboardOpen && Popups.dashboardPage != "kanban") {
-                Popups.dashboardPage = "kanban"
-            } else {
-                var next = !Popups.dashboardOpen
-                Popups.closeAll()
-                Popups.dashboardOpen = next
-                if (next) Popups.dashboardPage = "kanban"
-            }
-        }
-    }
-
     property var dashboardLauncher: IpcHandler {
         target: "dashboard-launcher"
         function toggle() {
