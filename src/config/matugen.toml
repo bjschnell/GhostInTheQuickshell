@@ -1,0 +1,10 @@
+[config]
+# Mandatory config section for matugen
+
+[templates.ghost]
+input_path = './ghost-colors.json.example'
+output_path = '~/.cache/ghost/colors.json'
+
+[templates.hyprland_colors]
+input_path = "colors.conf.template"
+output_path = "colors.conf"

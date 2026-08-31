@@ -1,0 +1,130 @@
+import QtQuick
+import "../../"
+import "../../components"
+import "../../services/"
+
+Item {
+    id: root
+
+    CpuService         { id: cpu;     active: root.visible }
+    MemService         { id: mem;     active: root.visible }
+    NetService         { id: net;     active: root.visible }
+    ThermalService     { id: thermal; active: root.visible }
+    DiskService        { id: disk;    active: root.visible }
+    CpuFreqService     { id: cpuFreq }
+    GpuService         { id: gpu;     active: root.visible }
+
+    Column {
+        anchors {
+            fill:          parent
+            bottomMargin:  8
+            topMargin:     8
+        }
+        spacing: 8
+
+        // Speedometers
+        Row {
+            id:      speedoRow
+            width:   parent.width
+            anchors.topMargin: 4
+            height:  160
+            spacing: 8
+
+            StatCard {
+                width:  (parent.width - parent.spacing * 3) / 4
+                height: parent.height
+                Speedometer {
+                    anchors.centerIn: parent
+                    label:       "CPU"
+                    percent:     cpu.usagePercent
+                    centerText:  cpu.usagePercent + "%"
+                    bottomText:  cpuFreq.curFreqStr
+                    active:      true
+                    accentColor: Theme.active
+                }
+            }
+
+            StatCard {
+                width:  (parent.width - parent.spacing * 3) / 4
+                height: parent.height
+                Speedometer {
+                    anchors.centerIn: parent
+                    label:       "RAM"
+                    percent:     mem.usagePercent
+                    centerText:  mem.usagePercent + "%"
+                    bottomText:  mem.usedStr + " / " + mem.totalStr
+                    active:      true
+                    accentColor: "#cba6f7"
+                }
+            }
+
+            StatCard {
+                width:  (parent.width - parent.spacing * 3) / 4
+                height: parent.height
+                Speedometer {
+                    anchors.centerIn: parent
+                    label:       "iGPU"
+                    percent:     gpu.igpu.freqPercent
+                    centerText:  gpu.igpu.freqPercent + "%"
+                    bottomText:  gpu.igpu.curMhz
+                    active:      true
+                    accentColor: "#89dceb"
+                }
+            }
+
+            StatCard {
+                width:  (parent.width - parent.spacing * 3) / 4
+                height: parent.height
+                Speedometer {
+                    anchors.centerIn: parent
+                    label:       "dGPU"
+                    percent:     gpu.dgpu.active ? gpu.dgpu.usagePercent : 0
+                    centerText:  gpu.dgpu.active ? (gpu.dgpu.usagePercent + "%") : "0%"
+                    bottomText:  gpu.dgpu.active ? (gpu.dgpu.usedVram + " / " + gpu.dgpu.totalVram) : ""
+                    active:      gpu.dgpu.active
+                    accentColor: "#a6e3a1"
+                }
+            }
+        }
+        
+        // Thermal strip
+        StatCard {
+            width:   parent.width
+            height:  100
+            padding: 6
+
+            TempPanel {
+                anchors.fill: parent
+                service:      thermal
+                dgpuActive:   gpu.dgpu.active
+            }
+        }
+
+        // Net | Disk
+        Row {
+            width:   parent.width
+            height:  parent.height - speedoRow.height - 100 - parent.spacing 
+            spacing: 8
+
+            // Network — narrow, only 3 rows
+            StatCard {
+                width:  Math.round(parent.width * 0.40)
+                height: parent.height
+                NetStatsPanel {
+                    anchors.fill: parent
+                    service:      net
+                }
+            }
+
+            // Disks — horizontal bars stack vertically
+            StatCard {
+                width:  parent.width - Math.round(parent.width * 0.40) - parent.spacing
+                height: parent.height
+                DiskPanel {
+                    anchors.fill: parent
+                    service:      disk
+                }
+            }
+        }
+    }
+}
