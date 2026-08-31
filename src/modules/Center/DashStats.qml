@@ -64,10 +64,10 @@ Item {
                 Speedometer {
                     anchors.centerIn: parent
                     label:       "iGPU"
-                    percent:     gpu.igpu.freqPercent
-                    centerText:  gpu.igpu.freqPercent + "%"
-                    bottomText:  gpu.igpu.curMhz
-                    active:      true
+                    percent:     gpu.igpu.active ? gpu.igpu.usagePercent : 0
+                    centerText:  gpu.igpu.active ? (gpu.igpu.usagePercent + "%") : "—"
+                    bottomText:  gpu.igpu.active ? gpu.igpu.curMhz : ""
+                    active:      gpu.igpu.active
                     accentColor: "#89dceb"
                 }
             }

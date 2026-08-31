@@ -1,13 +1,15 @@
 import QtQuick
 import Quickshell.Io
 
-// Intel iGPU: frequency % via cat of sysfs rps files.
+// AMD iGPU: utilization and clock from amdgpu sysfs. The card index is not
+//           stable across boots, so the node is discovered by driver name.
 // NVIDIA dGPU: nvidia-smi, polled whenever the service is active.
 //
 // Exposes:
-//   igpu.freqPercent  — 0–100 (act_freq / max_freq * 100)
-//   igpu.curMhz       — e.g. "650 MHz"
-//   igpu.maxMhz       — e.g. "1100 MHz"
+//   igpu.active       — false when no amdgpu node exposes gpu_busy_percent
+//   igpu.usagePercent — 0–100, straight from gpu_busy_percent
+//   igpu.curMhz       — active pp_dpm_sclk step, e.g. "600 MHz"
+//   igpu.maxMhz       — highest pp_dpm_sclk step, e.g. "2200 MHz"
 //
 //   dgpu.active       — true once nvidia-smi reports a device
 //   dgpu.usagePercent — 0–100
@@ -20,9 +22,10 @@ QtObject {
     property bool   active:   true
 
     property QtObject igpu: QtObject {
-        property real   freqPercent: 0.0
-        property string curMhz:     "— MHz"
-        property string maxMhz:     "— MHz"
+        property bool   active:       false
+        property real   usagePercent: 0.0
+        property string curMhz:       "— MHz"
+        property string maxMhz:       "— MHz"
     }
 
     property QtObject dgpu: QtObject {
@@ -32,37 +35,36 @@ QtObject {
         property string totalVram:    "— MB"
     }
 
-    // ── Intel act freq ────────────────────────────────────────────────────────
-    property real _actMhz: 0
-    property real _maxMhz: 0
-
-    property var _actProc: Process {
-        command: ["cat", "/sys/class/drm/card1/gt/gt0/rps_act_freq_mhz"]
+    // ── AMD iGPU — one shell pass emits "busy cur max" ───────────────────────
+    // pp_dpm_sclk lists clock steps, the active one flagged with "*":
+    //     0: 600Mhz *
+    //     1: 700Mhz
+    //     2: 2200Mhz
+    property var _igpuProc: Process {
+        command: ["sh", "-c",
+            "for u in /sys/class/drm/card*/device/uevent; do grep -q '^DRIVER=amdgpu$' \"$u\" 2>/dev/null || continue; " +
+            "d=$(dirname \"$u\"); [ -r \"$d/gpu_busy_percent\" ] || continue; " +
+            "busy=$(cat \"$d/gpu_busy_percent\" 2>/dev/null); cur=$(awk '/\\*/ {gsub(/[Mm]hz/, \"\", $2); " +
+            "print $2; exit}' \"$d/pp_dpm_sclk\" 2>/dev/null); max=$(awk '{gsub(/[Mm]hz/, \"\", $2); " +
+            "if ($2+0>m) m=$2+0} END {print m}' \"$d/pp_dpm_sclk\" 2>/dev/null); " +
+            "printf '%s %s %s\\n' \"${busy:-0}\" \"${cur:-0}\" \"${max:-0}\"; " +
+            "break; done"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var a = parseFloat(text.trim())
-                if (!isNaN(a)) {
-                    root._actMhz   = a
-                    root.igpu.curMhz = a + " MHz"
-                    if (root._maxMhz > 0)
-                        root.igpu.freqPercent = Math.round((a / root._maxMhz) * 100)
-                }
-            }
-        }
-    }
+                var line = text.trim()
+                if (line === "") { root.igpu.active = false; return }
 
-    // ── Intel max freq ────────────────────────────────────────────────────────
-    property var _maxProc: Process {
-        command: ["cat", "/sys/class/drm/card1/gt/gt0/rps_max_freq_mhz"]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var m = parseFloat(text.trim())
-                if (!isNaN(m)) {
-                    root._maxMhz     = m
-                    root.igpu.maxMhz = m + " MHz"
-                }
+                var p = line.split(/\s+/)
+                if (p.length < 3) { root.igpu.active = false; return }
+
+                var busy = parseFloat(p[0]), cur = parseFloat(p[1]), max = parseFloat(p[2])
+                if (isNaN(busy)) { root.igpu.active = false; return }
+
+                root.igpu.active       = true
+                root.igpu.usagePercent = Math.round(busy)
+                if (!isNaN(cur) && cur > 0) root.igpu.curMhz = cur + " MHz"
+                if (!isNaN(max) && max > 0) root.igpu.maxMhz = max + " MHz"
             }
         }
     }
@@ -95,10 +97,8 @@ QtObject {
         running:  root.active
         repeat:   true
         onTriggered: {
-            _actProc.running = false
-            _actProc.running = true
-            _maxProc.running = false
-            _maxProc.running = true
+            _igpuProc.running = false
+            _igpuProc.running = true
         }
     }
 
@@ -113,8 +113,7 @@ QtObject {
     }
 
     Component.onCompleted: {
-        _actProc.running = true
-        _maxProc.running = true
-        _nvProc.running  = true
+        _igpuProc.running = true
+        _nvProc.running   = true
     }
 }
