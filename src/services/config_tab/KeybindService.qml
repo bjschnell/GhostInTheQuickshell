@@ -28,7 +28,9 @@ QtObject {
         "dashboard-home":     { mods: "SUPER",        key: "D",      label: "Dashboard: System",    group: "Dashboard"      },
         "dashboard-stats":    { mods: "CTRL + SHIFT",  key: "ESCAPE", label: "Dashboard: Home",      group: "Dashboard"      },
         "dashboard-launcher": { mods: "SUPER",        key: "Q",      label: "Dashboard: Apps",      group: "Dashboard"      },
-        "dashboard-config":   { mods: "SUPER",        key: "C",      label: "Dashboard: Config",    group: "Dashboard"      },
+        // Unbound by default: SUPER + C collides with Hyprland's own close-window
+        // bind, and the Config tab is reachable from the dashboard tab strip.
+        "dashboard-config":   { mods: "",             key: "",       label: "Dashboard: Config",    group: "Dashboard"      },
         "PowerMenu-toggle":   { mods: "SUPER",        key: "ESCAPE", label: "Arch Menu",            group: "Popups"         },
         "notification-toggle":{ mods: "SUPER",        key: "N",      label: "Notifications",        group: "Popups"         },
         "wallpaper-toggle":   { mods: "SUPER",        key: "W",      label: "Wallpaper",            group: "Popups"         },

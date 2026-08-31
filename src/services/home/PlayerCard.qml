@@ -337,14 +337,14 @@ Item {
                 Text {
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
                     text: root._fmt(root._pos)
-                    font.pixelSize: 9; font.family: "JetBrains Mono"
+                    font.pixelSize: 9; font.family: Theme.fontMono
                     color: Qt.rgba(1,1,1,0.4)
                 }
 
                 Text {
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                     text: root._fmt(root.length)
-                    font.pixelSize: 9; font.family: "JetBrains Mono"
+                    font.pixelSize: 9; font.family: Theme.fontMono
                     color: Qt.rgba(1,1,1,0.4)
                 }
             }

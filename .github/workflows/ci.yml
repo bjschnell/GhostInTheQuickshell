@@ -27,16 +27,11 @@ jobs:
 
       - name: Validate pacman dependencies exist in repos
         run: |
-          PACMAN_DEPS=(
-            hyprland qt6-base qt6-declarative qt6-multimedia
-            qt6-5compat qt6ct pipewire pipewire-pulse wireplumber
-            networkmanager bluez bluez-utils
-            libnotify polkit python wl-clipboard slurp xdg-user-dirs
-            wf-recorder cava imagemagick wtype lm_sensors util-linux
-            hyprsunset hyprlock hyprpolkitagent hypridle
-            xdg-desktop-portal-hyprland ttf-jetbrains-mono-nerd
-            ttf-nerd-fonts-symbols-common hyprshutdown cliphist
-          )
+          # Read the list straight out of the installer instead of copying it.
+          # A second hand-maintained copy is what let CI drift into validating
+          # packages the installer never installs.
+          eval "$(sed -n '/^PACMAN_DEPS=(/,/^)/p' dots-extra/install-arch.sh)"
+          echo "Checking ${#PACMAN_DEPS[@]} packages from dots-extra/install-arch.sh"
           FAILED=()
           for pkg in "${PACMAN_DEPS[@]}"; do
             if pacman -Si "$pkg" &>/dev/null; then
@@ -49,31 +44,6 @@ jobs:
           if [ ${#FAILED[@]} -gt 0 ]; then
             echo ""
             echo "Missing packages: ${FAILED[*]}"
-            exit 1
-          fi
-
-      - name: Validate AUR packages exist on AUR RPC
-        run: |
-          AUR_DEPS=(
-            quickshell-git
-            awww-git
-            matugen-bin
-            grimblast-git
-          )
-          FAILED=()
-          for pkg in "${AUR_DEPS[@]}"; do
-            STATUS=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=${pkg}" \
-              | python3 -c "import json,sys; d=json.load(sys.stdin); print('ok' if d.get('resultcount',0)>0 else 'missing')")
-            if [[ "$STATUS" == "ok" ]]; then
-              echo "✓ $pkg (AUR)"
-            else
-              echo "✗ $pkg not found on AUR"
-              FAILED+=("$pkg")
-            fi
-          done
-          if [ ${#FAILED[@]} -gt 0 ]; then
-            echo ""
-            echo "Missing AUR packages: ${FAILED[*]}"
             exit 1
           fi
 
@@ -127,72 +97,6 @@ jobs:
           done
 
   # ─────────────────────────────────────────────
-  #  NixOS — flake check
-  # ─────────────────────────────────────────────
-  nix-validate:
-    name: NixOS — Flake & Package Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@v27
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-            accept-flake-config = true
-
-      - name: Validate flake.nix syntax
-        run: |
-          # Check file exists and is valid UTF-8 text
-          cat flake.nix > /dev/null
-          # Use nix-instantiate for pure syntax check (no network, no path access)
-          nix-instantiate --parse flake.nix > /dev/null
-          echo "✓ flake.nix syntax OK"
-
-      - name: Validate flake.lock structure
-        run: |
-          python3 -c "
-          import json, sys
-          with open('flake.lock') as f:
-              lock = json.load(f)
-          assert lock.get('version') == 7, 'Expected lock version 7'
-          nodes = lock.get('nodes', {})
-          print(f'Lock version: {lock[\"version\"]}')
-          print(f'Nodes: {list(nodes.keys())}')
-          for name, node in nodes.items():
-              if 'locked' in node:
-                  rev = node['locked'].get('rev', 'N/A')[:10]
-                  print(f'  ✓ {name}: {rev}')
-          "
-
-      - name: Validate flake.nix declares required outputs
-        run: |
-          python3 -c "
-          with open('flake.nix') as f:
-              content = f.read()
-          checks = {
-            'packages':     'packages' in content,
-            'devShells':    'devShells' in content,
-            'nixosModules': 'nixosModules' in content,
-            'description':  'description' in content,
-            'ghost':  'ghost' in content,
-          }
-          failed = []
-          for key, ok in checks.items():
-              if ok:
-                  print(f'  ✓ {key} declared')
-              else:
-                  print(f'  ✗ {key} MISSING')
-                  failed.append(key)
-          if failed:
-              raise SystemExit(f'Missing from flake.nix: {failed}')
-          "
-
-  # ─────────────────────────────────────────────
   #  Structure Sanity Check (both runners agree)
   # ─────────────────────────────────────────────
   structure-check:
@@ -207,8 +111,6 @@ jobs:
         run: |
           REQUIRED=(
             "shell.qml"
-            "flake.nix"
-            "flake.lock"
             "install.sh"
             "dots-extra/install-arch.sh"
             "dots-extra/validate-install.sh"

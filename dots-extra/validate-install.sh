@@ -40,26 +40,6 @@ check_command() {
     fi
 }
 
-check_optional() {
-    if command -v "$1" &> /dev/null; then
-        log_installed "$1 (optional)"
-    else
-        log_optional "$1"
-    fi
-}
-
-check_package() {
-    local pkg="$1"
-    local cmd="$2"
-    [[ -z "$cmd" ]] && cmd="$pkg"
-    
-    if command -v "$cmd" &> /dev/null; then
-        log_installed "$pkg"
-    else
-        log_missing "$pkg"
-    fi
-}
-
 clear
 echo "Ghost — Post-Installation Validator"
 echo "Verify all dependencies are installed"
@@ -80,14 +60,12 @@ check_command "quickshell"
 check_command "hyprland"
 check_command "hyprctl"
 
-echo ""
-echo "# QT6 & RENDERING"
-check_package "qt6-base" "qdbus"
-check_command "qt6ct"
+# Note: qt6-base / qt6-declarative are hard deps of quickshell and expose no
+# binary of their own, so a working quickshell above already proves them.
 
 echo ""
 echo "# SYSTEM TOOLS"
-check_command "pactl" || check_command "pacmd"
+check_command "pactl"
 check_command "bluetoothctl"
 check_command "notify-send"
 check_command "pkexec"
@@ -99,17 +77,18 @@ echo ""
 echo "# SCREEN RECORDING"
 check_command "wf-recorder"
 check_command "cava"
+check_command "mpv"
 
 echo ""
 echo "# WALLPAPER & THEMING"
 check_command "magick"
-check_optional "awww"
-check_optional "matugen"
+check_command "awww"
+check_command "matugen"
 
 echo ""
 echo "# CLIPBOARD"
 check_command "wtype"
-check_optional "cliphist"
+check_command "cliphist"
 
 echo ""
 echo "# POWER & HARDWARE"
@@ -120,41 +99,39 @@ echo "# HYPRLAND ECOSYSTEM"
 check_command "hyprsunset"
 check_command "hyprlock"
 check_command "hypridle"
-check_optional "hyprshutdown"
+check_command "hyprshutdown"
 
 echo ""
 echo "# FONTS"
-if fc-list | grep -q "JetBrains Mono"; then
-    log_installed "JetBrains Mono Nerd Font"
+if fc-list : family | grep -q "JetBrainsMono Nerd Font"; then
+    log_installed "JetBrainsMono Nerd Font"
 else
-    log_missing "JetBrains Mono Nerd Font"
+    log_missing "JetBrainsMono Nerd Font  (family named by Theme.fontMono)"
 fi
 
 echo ""
 echo "# CONFIGURATION FILES"
 
-if [[ -f "$HOME/.config/hypr/hyprland.conf" ]]; then
-    log_installed "Hyprland config"
-    
-    if grep -q "quickshell.*-c.*Ghost" "$HOME/.config/hypr/hyprland.conf"; then
-        log_installed "Ghost exec-once in hyprland.conf"
-    else
-        log_missing "Ghost exec-once in hyprland.conf"
-    fi
-else
-    log_missing "Hyprland config"
+# hyprland.lua and hyprland.conf are alternatives, not both required.
+# Hyprland loads .lua first when both exist, so check that one the same way
+# install.sh picks it.
+_HYPR_CONF=""
+if [[ -f "$HOME/.config/hypr/hyprland.lua" ]]; then
+    _HYPR_CONF="$HOME/.config/hypr/hyprland.lua"
+elif [[ -f "$HOME/.config/hypr/hyprland.conf" ]]; then
+    _HYPR_CONF="$HOME/.config/hypr/hyprland.conf"
 fi
 
-if [[ -f "$HOME/.config/hypr/hyprland.lua" ]]; then
-    log_installed "Hyprland Lua config"
-    
-    if grep -q "quickshell.*Ghost" "$HOME/.config/hypr/hyprland.lua"; then
-        log_installed "Ghost exec-once in hyprland.lua"
+if [[ -n "$_HYPR_CONF" ]]; then
+    log_installed "Hyprland config (${_HYPR_CONF##*/})"
+
+    if grep -q "quickshell.*Ghost" "$_HYPR_CONF"; then
+        log_installed "Ghost autostart in ${_HYPR_CONF##*/}"
     else
-        log_optional "Ghost exec-once in hyprland.lua (optional)"
+        log_missing "Ghost autostart in ${_HYPR_CONF##*/}"
     fi
 else
-    log_optional "Hyprland Lua config (optional)"
+    log_missing "Hyprland config (no hyprland.lua or hyprland.conf)"
 fi
 
 if [[ -d "$HOME/.local/src/Ghost" ]]; then
@@ -197,9 +174,7 @@ if [[ $MISSING -eq 0 ]]; then
 else
     echo -e "${YELLOW}Some required dependencies are missing.${NC}"
     echo ""
-    echo "To fix:"
-    echo "  • Arch:  Re-run install-arch.sh or install missing packages with pacman/yay"
-    echo "  • NixOS: Re-run install-nix.sh or add packages to your flake.nix"
+    echo "To fix:  re-run dots-extra/install-arch.sh, or:  sudo pacman -S <pkg>"
     echo ""
     exit 1
 fi

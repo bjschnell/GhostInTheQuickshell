@@ -16,11 +16,17 @@ Canvas {
     property int topBorderWidth:  Theme.borderWidth
     property color color:         Theme.background
 
+    // How far the center notch hangs below the top edge, in px.
+    // notchHeight = fully out, topBorderWidth = fully retracted (drawn as a
+    // flat run of top edge, so left and right stay untouched).
+    property real centerDepth:    Theme.notchHeight
+
     onWidthChanged:       requestPaint()
     onHeightChanged:      requestPaint()
     onLeftWidthChanged:   requestPaint()
     onCenterWidthChanged: requestPaint()
     onRightWidthChanged:  requestPaint()
+    onCenterDepthChanged: requestPaint()
     onColorChanged:       requestPaint()
 
     onPaint: {
@@ -54,20 +60,27 @@ Canvas {
         ctx.arcTo(leftW, b, leftW + r, b, r);
 
         // ============================
-        // 2. GAP 1 (Left → Center)
+        // 2. + 3. GAP 1 → CENTER NOTCH
         // ============================
-        ctx.lineTo(centerStart - r, b);
+        // The center notch retracts by depth, not by width, so it melts into
+        // the top edge instead of shrinking to a sliver. Its corner radius is
+        // clamped to whatever vertical room is left, otherwise the two arcs
+        // overlap and Canvas draws a knot on the way down.
+        var hc = Math.max(b, Math.min(h, root.centerDepth))
+        var cr = Math.max(0, Math.min(r, (hc - b) / 2, centerW / 2))
 
-        // ============================
-        // 3. CENTER NOTCH
-        // ============================
-        ctx.arcTo(centerStart, b, centerStart, b + r, r);
-        ctx.lineTo(centerStart, h - r);
-        ctx.arcTo(centerStart, h, centerStart + r, h, r);
-        ctx.lineTo(centerEnd - r, h);
-        ctx.arcTo(centerEnd, h, centerEnd, h - r, r);
-        ctx.lineTo(centerEnd, b + r);
-        ctx.arcTo(centerEnd, b, centerEnd + r, b, r);
+        if (hc > b) {
+            ctx.lineTo(centerStart - cr, b);
+            ctx.arcTo(centerStart, b, centerStart, b + cr, cr);
+            ctx.lineTo(centerStart, hc - cr);
+            ctx.arcTo(centerStart, hc, centerStart + cr, hc, cr);
+            ctx.lineTo(centerEnd - cr, hc);
+            ctx.arcTo(centerEnd, hc, centerEnd, hc - cr, cr);
+            ctx.lineTo(centerEnd, b + cr);
+            ctx.arcTo(centerEnd, b, centerEnd + cr, b, cr);
+        }
+        // Fully retracted: fall through to section 4, which runs the top edge
+        // straight across from the left notch to the right one.
 
         // ============================
         // 4. GAP 2 (Center → Right)

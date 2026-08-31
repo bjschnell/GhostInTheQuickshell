@@ -49,7 +49,7 @@ StatCard {
                     anchors.top:  parent.top
                     text: root._hStr
                     font.pixelSize: 72; font.weight: Font.Bold
-                    font.family: "JetBrains Mono"; font.letterSpacing: -4
+                    font.family: Theme.fontMono; font.letterSpacing: -4
                     color: Theme.text
                 }
                 Text {
@@ -60,7 +60,7 @@ StatCard {
                     anchors.topMargin: -8
                     text: root._mStr
                     font.pixelSize: 72; font.weight: Font.Bold
-                    font.family: "JetBrains Mono"; font.letterSpacing: -4
+                    font.family: Theme.fontMono; font.letterSpacing: -4
                     color: Theme.active
                 }
             }
@@ -70,7 +70,7 @@ StatCard {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root._sec
                 font.pixelSize: 22; font.weight: Font.Medium
-                font.family: "JetBrains Mono"
+                font.family: Theme.fontMono
                 color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.45)
             }
         }

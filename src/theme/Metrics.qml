@@ -28,6 +28,15 @@ QtObject {
     property int cNotchMinWidth: 300
     property int cNotchMaxWidth: 360
 
+    // -- Center Island Auto-Hide --
+    // The center island stays retracted into the top edge until the pointer
+    // enters the reveal strip. Set centerAutoHide false for the old always-on
+    // behaviour. Overridden while the dashboard is open or a screen recording
+    // is being set up / is running (see TopBar.centerPinned).
+    property bool centerAutoHide:    true
+    property int  centerRevealWidth: 340   // width of the top-center hover strip
+    property int  centerHideDelay:   400   // ms of no-hover before it retracts
+
     property int rNotchMinWidth: 180
     property int rNotchMaxWidth: 360
 
