@@ -62,6 +62,55 @@ PanelWindow {
         Math.min(Theme.rNotchMaxWidth, rightContent.implicitWidth + Theme.notchPadding * 2)
     )
 
+    // ── Center island auto-hide ──────────────────────────────────────────────
+    // The center notch stays retracted into the top edge until the pointer
+    // enters the reveal strip above it. It only ever carried the active window
+    // title, which Hyprland already tells you by highlighting the window.
+    //
+    // Pinned open whenever the notch holds controls you must be able to reach
+    // without hunting for them: the dashboard anchors to it, and the screen
+    // recorder puts its record / stop / discard buttons inside it.
+    readonly property bool centerPinned: Popups.dashboardOpen
+                                         || ShellState.screenRecord
+                                         || ScreenRecService.recording
+
+    property bool centerHovered: false
+
+    readonly property bool centerRevealed: !Theme.centerAutoHide
+                                           || root.centerPinned
+                                           || root.centerHovered
+
+    // Grace period so a pointer clipping the strip edge does not make the
+    // island stutter, and so you can travel into it without it retracting.
+    Timer {
+        id: centerHideTimer
+        interval: Theme.centerHideDelay
+        onTriggered: root.centerHovered = false
+    }
+
+    // Reveal strip — a little wider than the notch so the edges are forgiving.
+    // Declared before the content layer so it sits underneath it and never
+    // intercepts taps meant for CenterContent.
+    Item {
+        id: centerRevealZone
+        width:  Theme.centerRevealWidth
+        height: parent.height
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top:              parent.top
+
+        HoverHandler {
+            enabled: !ShellState.focusMode
+            onHoveredChanged: {
+                if (hovered) {
+                    centerHideTimer.stop()
+                    root.centerHovered = true
+                } else {
+                    centerHideTimer.restart()
+                }
+            }
+        }
+    }
+
     // ── Border strip (focus mode) ────────────────────────────────────────────
     // Painted behind the notch content layer. Visible only when focus mode
     // fades the notches out. Uses the same bar color so it reads as a thin
@@ -114,6 +163,11 @@ PanelWindow {
             leftWidth:   root.lWidth
             centerWidth: root.cWidth
             rightWidth:  root.rWidth
+
+            centerDepth: root.centerRevealed ? Theme.notchHeight : Theme.borderWidth
+            Behavior on centerDepth {
+                NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic }
+            }
         }
 
         Item {
@@ -133,6 +187,18 @@ PanelWindow {
             width:            root.cWidth
             height:           Theme.notchHeight
             anchors.centerIn: parent
+
+            // Fades faster than the notch retracts so the text is gone before
+            // the shape behind it is. visible gates hit-testing, so a retracted
+            // island cannot be tapped or scrolled by accident.
+            opacity: root.centerRevealed ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: Math.round(Theme.animDuration * 0.6)
+                    easing.type: Easing.InOutCubic
+                }
+            }
 
             CenterContent {
                 id: centerContent

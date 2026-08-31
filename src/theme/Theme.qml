@@ -41,6 +41,11 @@ QtObject {
     property int lNotchMaxWidth: Metrics.lNotchMaxWidth
     property int cNotchMinWidth: Metrics.cNotchMinWidth
     property int cNotchMaxWidth: Metrics.cNotchMaxWidth
+
+    property bool centerAutoHide:    Metrics.centerAutoHide
+    property int  centerRevealWidth: Metrics.centerRevealWidth
+    property int  centerHideDelay:   Metrics.centerHideDelay
+
     property int rNotchMinWidth: Metrics.rNotchMinWidth
     property int rNotchMaxWidth: Metrics.rNotchMaxWidth
 
