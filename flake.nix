@@ -105,7 +105,7 @@
 
           meta = with pkgs.lib; {
             description  = "A modular Quickshell/QML desktop shell for Hyprland";
-            homepage     = "https://github.com/bjschnell/Ghost";
+            homepage     = "https://github.com/bjschnell/GhostInTheQuickshell";
             license      = licenses.mit;
             platforms    = platforms.linux;
             mainProgram  = "ghost";

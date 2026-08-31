@@ -6,18 +6,18 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/last-commit/bjschnell/Ghost?style=for-the-badge&color=8D748C&logoColor=D9E0EE&labelColor=252733" alt="Last Commit" />
-  <img src="https://img.shields.io/github/stars/bjschnell/Ghost?style=for-the-badge&logo=starship&color=AB6C6A&logoColor=D9E0EE&labelColor=252733" alt="Stars" />
+  <img src="https://img.shields.io/github/last-commit/bjschnell/GhostInTheQuickshell?style=for-the-badge&color=8D748C&logoColor=D9E0EE&labelColor=252733" alt="Last Commit" />
+  <img src="https://img.shields.io/github/stars/bjschnell/GhostInTheQuickshell?style=for-the-badge&logo=starship&color=AB6C6A&logoColor=D9E0EE&labelColor=252733" alt="Stars" />
   <img src="https://img.shields.io/badge/version-0.1.0-8D748C?style=for-the-badge&logoColor=D9E0EE&labelColor=252733" alt="Version 0.1.0" />
   <br>
   <img src="https://img.shields.io/badge/hyprland-v0.55+-5E81AC?style=for-the-badge&logoColor=D9E0EE&labelColor=252733" alt="Hyprland v0.55+" />
   <img src="https://img.shields.io/badge/framework-quickshell-A1C999?style=for-the-badge&logoColor=D9E0EE&labelColor=252733" alt="Quickshell Framework" />
   <br>
-  <a href="https://github.com/bjschnell/Ghost/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/bjschnell/Ghost?style=for-the-badge&color=A1C999&logo=opensourceinitiative&logoColor=D9E0EE&labelColor=252733" alt="License" />
+  <a href="https://github.com/bjschnell/GhostInTheQuickshell/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/bjschnell/GhostInTheQuickshell?style=for-the-badge&color=A1C999&logo=opensourceinitiative&logoColor=D9E0EE&labelColor=252733" alt="License" />
   </a>
-  <a href="https://github.com/bjschnell/Ghost/issues">
-    <img src="https://img.shields.io/github/issues/bjschnell/Ghost?style=for-the-badge&logo=github&color=5E81AC&logoColor=D9E0EE&labelColor=252733" alt="Issues" />
+  <a href="https://github.com/bjschnell/GhostInTheQuickshell/issues">
+    <img src="https://img.shields.io/github/issues/bjschnell/GhostInTheQuickshell?style=for-the-badge&logo=github&color=5E81AC&logoColor=D9E0EE&labelColor=252733" alt="Issues" />
   </a>
 </p>
 
@@ -65,13 +65,13 @@
 ### One line installer
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bjschnell/Ghost/refs/heads/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/bjschnell/GhostInTheQuickshell/refs/heads/main/install.sh | bash
 ```
 
 ### Manual installation
 
 ```bash
-git clone https://github.com/bjschnell/Ghost.git
+git clone https://github.com/bjschnell/GhostInTheQuickshell.git
 cd Ghost
 chmod +x install.sh
 ./install.sh
@@ -226,8 +226,8 @@ Known Issues
 
 Ghost is actively developed and welcomes contributions!
 
-- Found a bug? → [Open an issue](https://github.com/bjschnell/Ghost/issues)
-- Have an idea? → [Start a discussion](https://github.com/bjschnell/Ghost/discussions)
+- Found a bug? → [Open an issue](https://github.com/bjschnell/GhostInTheQuickshell/issues)
+- Have an idea? → [Start a discussion](https://github.com/bjschnell/GhostInTheQuickshell/discussions)
 - Want to contribute? → Fork, branch, and submit a pull request
 
 ---
@@ -251,11 +251,11 @@ Ghost is actively developed and welcomes contributions!
 </h2>
 
 <div align="center">
-  <a href="https://www.star-history.com/?repos=bjschnell%2FGhost&type=date&legend=top-left">
+  <a href="https://www.star-history.com/?repos=bjschnell%2FGhostInTheQuickshell&type=date&legend=top-left">
    <picture>
-     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=bjschnell/Ghost&type=date&theme=dark&legend=top-left" />
-     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=bjschnell/Ghost&type=date&legend=top-left" />
-     <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=bjschnell/Ghost&type=date&legend=top-left" />
+     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=bjschnell/GhostInTheQuickshell&type=date&theme=dark&legend=top-left" />
+     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=bjschnell/GhostInTheQuickshell&type=date&legend=top-left" />
+     <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=bjschnell/GhostInTheQuickshell&type=date&legend=top-left" />
    </picture>
   </a>
 </div>

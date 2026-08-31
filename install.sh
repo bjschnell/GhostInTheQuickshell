@@ -1,7 +1,7 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
 #  Ghost — Main Installer
-#  github.com/bjschnell/Ghost  v0.1.0
+#  github.com/bjschnell/GhostInTheQuickshell  v0.1.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Hesitation is Defeat — Isshin Ashina
 set -eo pipefail
@@ -39,7 +39,7 @@ echo " ▒███  ▒▒▒███  ▒███▒▒▒▒▒███   
 echo " ▒▒███   ▒███  ▒███    ▒███   ▒▒███   ███   ███    ▒███      ▒███    "
 echo "  ▒▒█████████  █████   █████   ▒▒█████████ ▒▒█████████       █████   "
 echo -e "${NC}"
-echo -e "  ${DIM}v0.1.0  ·  github.com/bjschnell/Ghost${NC}"
+echo -e "  ${DIM}v0.1.0  ·  github.com/bjschnell/GhostInTheQuickshell${NC}"
 echo ""
 
 
@@ -142,7 +142,7 @@ if [[ -d "$REPO_DIR/.git" ]]; then
     log_ok "Repository updated: $REPO_DIR"
 else
     log_info "Cloning from GitHub..."
-    git clone -b main https://github.com/bjschnell/Ghost.git "$REPO_DIR"
+    git clone -b main https://github.com/bjschnell/GhostInTheQuickshell.git "$REPO_DIR"
     log_ok "Repository cloned: $REPO_DIR"
 fi
 
