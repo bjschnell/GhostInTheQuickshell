@@ -113,7 +113,7 @@ Rectangle {
         Behavior on scale   { NumberAnimation { duration: 200 } }
 
         Repeater {
-            model: 10 
+            model: Hyprland.workspaces.values
             delegate: Rectangle {
                 id: dot
                 

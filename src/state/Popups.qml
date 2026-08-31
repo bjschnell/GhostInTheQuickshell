@@ -13,6 +13,7 @@ QtObject {
     property bool notificationToastOpen:    false
     property bool quickOpen: false
     property bool clipboardOpen:     false
+    property bool trayMenuOpen:      false
 
     // ── Dashboard — per-page state ───────────────────────────────────────────
     property int    dashboardPageWidth: 900
@@ -60,7 +61,7 @@ QtObject {
     readonly property bool anyOpen: audioOpen || networkOpen
                                     || notificationsOpen || archMenuOpen
                                     || dashboardOpen || wallpaperOpen || quickOpen
-                                    || clipboardOpen
+                                    || clipboardOpen || trayMenuOpen
 
     function closeAll() {
         audioOpen         = false
@@ -71,5 +72,6 @@ QtObject {
         wallpaperOpen     = false
         quickOpen         = false
         clipboardOpen     = false
+        trayMenuOpen      = false
     }
 }
