@@ -2,6 +2,8 @@ import QtQuick
 import Quickshell.Io
 
 // Runs `sensors` every 3s and parses CPU package temp + fan speeds.
+// CPU temp label differs by vendor: Intel reports "Package id 0",
+// AMD reports "Tctl" (k10temp), older AMD "Tdie". Tried in that order.
 // Separately queries nvidia-smi for GPU temp every 3s.
 //
 // Exposes:
@@ -74,16 +76,23 @@ QtObject {
 
     function _parse(text) {
         var lines = text.split("\n")
-        var pkg   = -1
+        var intel = -1, tctl = -1, tdie = -1
         var fans  = []
 
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i]
 
-            // CPU package temp — "Package id 0:  +52.0°C"
-            if (/Package id 0:/i.test(line)) {
+            // CPU temp — vendor-dependent label, all formatted "+52.0°C"
+            var lm = line.match(/^\s*(Package id 0|Tctl|Tdie)\s*:/i)
+            if (lm) {
                 var m = line.match(/\+([0-9.]+)°C/)
-                if (m) pkg = parseFloat(m[1])
+                if (m) {
+                    var v     = parseFloat(m[1])
+                    var label = lm[1].toLowerCase()
+                    if      (label === "package id 0") intel = v
+                    else if (label === "tctl")         tctl  = v
+                    else                               tdie  = v
+                }
                 continue
             }
 
@@ -94,6 +103,9 @@ QtObject {
                 continue
             }
         }
+
+        // Intel first, then AMD's Tctl, then legacy Tdie
+        var pkg = intel >= 0 ? intel : (tctl >= 0 ? tctl : tdie)
 
         if (pkg >= 0) {
             root.cpuTemp    = pkg
