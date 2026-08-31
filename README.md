@@ -7,7 +7,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/last-commit/bjschnell/GhostInTheQuickshell?style=for-the-badge&color=8D748C&logoColor=D9E0EE&labelColor=252733" alt="Last Commit" />
-  <img src="https://img.shields.io/github/stars/bjschnell/GhostInTheQuickshell?style=for-the-badge&logo=starship&color=AB6C6A&logoColor=D9E0EE&labelColor=252733" alt="Stars" />
   <img src="https://img.shields.io/badge/version-0.1.0-8D748C?style=for-the-badge&logoColor=D9E0EE&labelColor=252733" alt="Version 0.1.0" />
   <br>
   <img src="https://img.shields.io/badge/hyprland-v0.55+-5E81AC?style=for-the-badge&logoColor=D9E0EE&labelColor=252733" alt="Hyprland v0.55+" />
@@ -27,14 +26,6 @@
 > by Venkat Saahit Kamu (Brainitech), MIT licensed. Laptop-only features — battery,
 > airplane mode, hotspot, brightness, fan control, CPU/GPU profile switching, and the
 > timer/alarm/stopwatch — have been removed. For the full-featured original, go upstream.
-
----
-
-<h2>Showcase</h2>
-
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/93a0697e-c531-4510-b2f0-a59a4b6072b4" controls="controls" muted="muted" style="max-width: 100%; height: auto;"></video>
-</div>
 
 ---
 
@@ -243,22 +234,6 @@ Ghost is actively developed and welcomes contributions!
 - **[Celestial Shell](https://github.com/caelestia-dots/shell)** & **[AX-Shell](https://github.com/Axenide/ax-shell)** — For the inspiration
 - **[NotCandy001](https://github.com/notcandy001)** — For the installer
 - **All the Testers & Contributors** — For their time put into testing and suggesting fixes.
-
----
-
-<h2>
-  Brain Cells Collected
-</h2>
-
-<div align="center">
-  <a href="https://www.star-history.com/?repos=bjschnell%2FGhostInTheQuickshell&type=date&legend=top-left">
-   <picture>
-     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=bjschnell/GhostInTheQuickshell&type=date&theme=dark&legend=top-left" />
-     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=bjschnell/GhostInTheQuickshell&type=date&legend=top-left" />
-     <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=bjschnell/GhostInTheQuickshell&type=date&legend=top-left" />
-   </picture>
-  </a>
-</div>
 
 ---
 
