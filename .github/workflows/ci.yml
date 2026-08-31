@@ -27,16 +27,11 @@ jobs:
 
       - name: Validate pacman dependencies exist in repos
         run: |
-          PACMAN_DEPS=(
-            hyprland qt6-base qt6-declarative qt6-multimedia
-            qt6-5compat qt6ct pipewire pipewire-pulse wireplumber
-            networkmanager bluez bluez-utils
-            libnotify polkit python wl-clipboard slurp xdg-user-dirs
-            wf-recorder cava imagemagick wtype lm_sensors util-linux
-            hyprsunset hyprlock hyprpolkitagent hypridle
-            xdg-desktop-portal-hyprland ttf-jetbrains-mono-nerd
-            ttf-nerd-fonts-symbols-common hyprshutdown cliphist
-          )
+          # Read the list straight out of the installer instead of copying it.
+          # A second hand-maintained copy is what let CI drift into validating
+          # packages the installer never installs.
+          eval "$(sed -n '/^PACMAN_DEPS=(/,/^)/p' dots-extra/install-arch.sh)"
+          echo "Checking ${#PACMAN_DEPS[@]} packages from dots-extra/install-arch.sh"
           FAILED=()
           for pkg in "${PACMAN_DEPS[@]}"; do
             if pacman -Si "$pkg" &>/dev/null; then
@@ -49,31 +44,6 @@ jobs:
           if [ ${#FAILED[@]} -gt 0 ]; then
             echo ""
             echo "Missing packages: ${FAILED[*]}"
-            exit 1
-          fi
-
-      - name: Validate AUR packages exist on AUR RPC
-        run: |
-          AUR_DEPS=(
-            quickshell-git
-            awww-git
-            matugen-bin
-            grimblast-git
-          )
-          FAILED=()
-          for pkg in "${AUR_DEPS[@]}"; do
-            STATUS=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=${pkg}" \
-              | python3 -c "import json,sys; d=json.load(sys.stdin); print('ok' if d.get('resultcount',0)>0 else 'missing')")
-            if [[ "$STATUS" == "ok" ]]; then
-              echo "✓ $pkg (AUR)"
-            else
-              echo "✗ $pkg not found on AUR"
-              FAILED+=("$pkg")
-            fi
-          done
-          if [ ${#FAILED[@]} -gt 0 ]; then
-            echo ""
-            echo "Missing AUR packages: ${FAILED[*]}"
             exit 1
           fi
 

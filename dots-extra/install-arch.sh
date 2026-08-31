@@ -24,7 +24,7 @@ log_warn()  { echo -e "  ${YELLOW}⚠${NC} $1"; }
 log_error() { echo -e "  ${RED}✗${NC} $1" >&2; }
 die()       { echo ""; log_error "$1"; exit 1; }
 
-TOTAL_STEPS=6
+TOTAL_STEPS=4
 step() {
     echo ""
     echo -e "${BOLD}${CYAN}  [$1/$TOTAL_STEPS]  $2${NC}"
@@ -116,135 +116,55 @@ pacman_install() {
     fi
 }
 
-# aur_install <helper> <pkg> [<pkg> ...]
+# ══════════════════════════════════════════════════════════════════════════════
+# STEP 1 — Pacman Packages
+# ══════════════════════════════════════════════════════════════════════════════
+step 1 "Pacman Packages"
+
+# Every entry below is traceable to a call site in src/ or to an autostart
+# line this installer appends. Anything that isn't, isn't listed — media
+# playback (playerctl, mpv-mpris, mpd-mpris) is handled by Quickshell's own
+# Mpris service, and there is no screenshot feature to need grimblast.
 #
-# Installs packages individually via yay/paru. AUR helpers build from source,
-# so they don't support the same --overwrite shortcut. Failures are tracked but
-# non-fatal; quickshell is checked explicitly afterwards.
-#
-aur_install() {
-    local helper="$1"; shift
-    local -a pkgs=("$@")
-    local -a failed=()
-
-    echo ""
-    for pkg in "${pkgs[@]}"; do
-        printf "    ${DIM}%-32s${NC} " "$pkg"
-
-        if $helper -Q "$pkg" &>/dev/null; then
-            echo -e "${GREEN}✓ already installed${NC}"
-            continue
-        fi
-
-        if $helper -S --noconfirm "$pkg" &>/dev/null; then
-            echo -e "${GREEN}✓${NC}"
-        else
-            echo -e "${RED}✗${NC}"
-            failed+=("$pkg")
-        fi
-    done
-
-    echo ""
-
-    if [[ ${#failed[@]} -gt 0 ]]; then
-        log_warn "${#failed[@]} AUR package(s) failed (see summary):"
-        for pkg in "${failed[@]}"; do
-            log_warn "    $pkg"
-            FAILED_PKGS+=("aur:$pkg")
-        done
-    else
-        log_ok "All AUR packages installed."
-    fi
-}
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# STEP 1 — AUR Helper
-# ══════════════════════════════════════════════════════════════════════════════
-step 1 "AUR Helper"
-
-AUR_HELPER=""
-
-if command -v yay &>/dev/null; then
-    AUR_HELPER="yay"
-    log_ok "yay detected"
-elif command -v paru &>/dev/null; then
-    AUR_HELPER="paru"
-    log_ok "paru detected"
-else
-    log_warn "No AUR helper found (yay / paru)."
-    echo ""
-    echo -e "  ${BOLD}Select one to install:${NC}"
-    echo "    1) yay   — more interactive, widely used"
-    echo "    2) paru  — faster builds, more features"
-    echo "    3) Skip  — pacman-only (quickshell will be missing)"
-    echo ""
-    read -rp "  Choice [1/2/3]: " _aur_choice < /dev/tty
-
-    _bootstrap_aur_helper() {
-        local name="$1"
-        log_info "Bootstrapping $name from AUR..."
-        sudo pacman -S --needed --noconfirm git base-devel
-        local tmp; tmp=$(mktemp -d)
-        git clone "https://aur.archlinux.org/${name}.git" "$tmp/$name"
-        ( cd "$tmp/$name" && makepkg -si --noconfirm )
-        rm -rf "$tmp"
-        log_ok "$name installed."
-    }
-
-    case "$_aur_choice" in
-        1) _bootstrap_aur_helper yay;  AUR_HELPER="yay"  ;;
-        2) _bootstrap_aur_helper paru; AUR_HELPER="paru" ;;
-        3)
-            log_warn "Skipping AUR helper."
-            log_warn "quickshell is required — install yay or paru later and re-run."
-            AUR_HELPER="none"
-            ;;
-        *) die "Invalid choice." ;;
-    esac
-fi
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# STEP 2 — Pacman Packages
-# ══════════════════════════════════════════════════════════════════════════════
-step 2 "Pacman Packages"
-
+# quickshell, awww, matugen, cliphist and hyprshutdown all live in the
+# official [extra] repo, so Ghost needs no AUR helper and builds nothing
+# from source.
 PACMAN_DEPS=(
-    # Qt6 runtime
-    qt6-base qt6-declarative qt6-multimedia qt6-5compat qt6ct
+    # Core shell runtime
+    quickshell
 
-    # Audio / PipeWire
-    pipewire pipewire-pulse wireplumber
+    # Qt6 runtime — hard deps of quickshell; listed to state the requirement
+    qt6-base qt6-declarative
 
-    # Media & player control
-    playerctl mpv-mpris mpd-mpris
+    # Audio / PipeWire  (libpulse provides pactl — used throughout AudioControl)
+    pipewire pipewire-pulse wireplumber libpulse
 
-    # Network / Bluetooth
+    # Network / Bluetooth  (nmcli, bluetoothctl)
     networkmanager bluez bluez-utils
 
     # System services
     libnotify polkit
-    python wl-clipboard slurp xdg-user-dirs
+    python wl-clipboard slurp
 
-    # Screen recording
-    wf-recorder cava
+    # Screen recording  (mpv opens finished recordings from the notification)
+    wf-recorder cava mpv
 
     # Wallpaper / theming
-    imagemagick
+    imagemagick awww matugen
 
-    # Input simulation
-    wtype
+    # Input simulation / clipboard history
+    wtype cliphist
 
     # Hardware sensors
     lm_sensors
 
-    # Hyprland ecosystem  (hyprshutdown is AUR-only — kept out of here)
-    hyprland hyprsunset hyprlock hyprpolkitagent hypridle
+    # Hyprland ecosystem  (hyprshutdown backs src/scripts/PowerControl.sh)
+    hyprland hyprsunset hyprlock hyprpolkitagent hypridle hyprshutdown
     xdg-desktop-portal-hyprland
 
-    # Fonts
-    ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols-common
+    # Fonts — provides the "JetBrainsMono Nerd Font" family Theme.fontMono asks
+    # for, glyphs included; no separate symbols package is needed.
+    ttf-jetbrains-mono-nerd
 )
 
 log_info "Syncing package database..."
@@ -254,41 +174,14 @@ sudo pacman -Syu --noconfirm 2>/dev/null || {
 
 pacman_install "${PACMAN_DEPS[@]}"
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# STEP 3 — AUR Packages
-# ══════════════════════════════════════════════════════════════════════════════
-step 3 "AUR Packages"
-
-AUR_DEPS=(
-    quickshell       # REQUIRED — the shell runtime
-    awww             # animation daemon
-    matugen          # Material You color generation
-    cliphist         # clipboard history
-    hyprshutdown     # power menu backend
-    grimblast-git    # screenshot tool
-)
-
-if [[ "$AUR_HELPER" == "none" ]]; then
-    log_warn "No AUR helper — skipping all AUR packages."
-    for pkg in "${AUR_DEPS[@]}"; do
-        FAILED_PKGS+=("aur:$pkg (no helper)")
-    done
-else
-    log_info "Using: $AUR_HELPER"
-    aur_install "$AUR_HELPER" "${AUR_DEPS[@]}"
-fi
-
 # quickshell is non-negotiable
-if ! "$AUR_HELPER" -Q quickshell &>/dev/null 2>&1; then
-    die "quickshell failed to install. Ghost cannot run without it."
-fi
+pacman -Qi quickshell &>/dev/null || die "quickshell failed to install. Ghost cannot run without it."
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# STEP 4 — Systemd Services
+# STEP 2 — Systemd Services
 # ══════════════════════════════════════════════════════════════════════════════
-step 4 "Systemd Services"
+step 2 "Systemd Services"
 
 _svc_system() {
     sudo systemctl enable --now "$1" 2>/dev/null \
@@ -309,9 +202,9 @@ _svc_user   wireplumber
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# STEP 5 — Hyprland Config
+# STEP 3 — Hyprland Config
 # ══════════════════════════════════════════════════════════════════════════════
-step 5 "Hyprland Config"
+step 3 "Hyprland Config"
 
 # Marker used to detect whether the block was already appended
 _MARKER="quickshell.*Ghost"
@@ -367,9 +260,9 @@ fi
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# STEP 6 — Ghost Config & Keybind Check
+# STEP 4 — Ghost Config & Keybind Check
 # ══════════════════════════════════════════════════════════════════════════════
-step 6 "Ghost Config"
+step 4 "Ghost Config"
 
 USER_DATA="$HOME/.config/Ghost/src/user_data"
 
@@ -409,7 +302,7 @@ DEFAULTS = {
     "dashboard-home":      {"mods": "SUPER",        "key": "D",      "label": "Dashboard: System"},
     "dashboard-stats":     {"mods": "CTRL + SHIFT", "key": "ESCAPE", "label": "Dashboard: Home"},
     "dashboard-launcher":  {"mods": "SUPER",        "key": "Q",      "label": "Dashboard: Apps"},
-    "dashboard-config":    {"mods": "SUPER",        "key": "C",      "label": "Dashboard: Config"},
+    "dashboard-config":    {"mods": "",             "key": "",       "label": "Dashboard: Config"},
     "PowerMenu-toggle":    {"mods": "SUPER",        "key": "ESCAPE", "label": "Power Menu"},
     "notification-toggle": {"mods": "SUPER",        "key": "N",      "label": "Notifications"},
     "wallpaper-toggle":    {"mods": "SUPER",        "key": "W",      "label": "Wallpaper"},
@@ -495,11 +388,7 @@ else
         _pkg="${entry#*:}"
         # Strip any parenthetical note before displaying the install command
         _pkg_name="${_pkg%% (*}"
-        if [[ "$_src" == "pacman" ]]; then
-            log_info "sudo pacman -S $_pkg_name"
-        else
-            log_info "$AUR_HELPER -S $_pkg_name"
-        fi
+        log_info "sudo pacman -S $_pkg_name"
     done
 
     echo ""
