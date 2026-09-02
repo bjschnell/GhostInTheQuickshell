@@ -164,6 +164,15 @@ QtObject {
         command: []
     }
 
+    // Hyprland's active border mirrors the shell accent, so it has to follow a
+    // palette switch too — not just a wallpaper apply. Watching Theme.active
+    // keeps the dependency pointing service -> theme, and covers both sources
+    // of a color change (matugen output and a static palette selection).
+    property var _accentWatch: Connections {
+        target: Theme
+        function onActiveChanged() { root.updateBorders() }
+    }
+
     Component.onCompleted: {
         readConfigProc.running = true
         if (Theme.active && String(Theme.active).trim() !== "") {
