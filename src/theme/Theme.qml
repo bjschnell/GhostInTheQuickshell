@@ -6,6 +6,17 @@ QtObject {
     // ── Bindings to Modular Singletons ────────────────────────────────────────
     // Note: property alias cannot point to other singletons, so we use direct bindings.
     
+    // Palette selection — the shell either follows the wallpaper (matugen) or
+    // pins a fixed palette from Palettes.qml. Exposed here so UI code only ever
+    // touches Theme. Read-only by design: go through setPalette so the choice
+    // is persisted to user_data/theme.json.
+    readonly property string palette:  Colors.palette
+    readonly property var    palettes: Palettes.names
+    readonly property string dynamicPalette: Palettes.dynamicName
+
+    function setPalette(name) { Colors.setPalette(name) }
+    function cyclePalette()   { Colors.cyclePalette() }
+
     // Colors
     property color background: Colors.background
     property color active:     Colors.active

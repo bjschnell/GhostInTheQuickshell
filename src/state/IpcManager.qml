@@ -252,6 +252,33 @@ QtObject {
         }
     }
 
+    // ── Theme ────────────────────────────────────────────────
+    // qs ipc call theme list
+    // qs ipc call theme set dracula
+    // qs ipc call theme cycle      (bindable to a key)
+
+    property var theme: IpcHandler {
+        target: "theme"
+
+        function set(name: string): string {
+            Theme.setPalette(name)
+            return Theme.palette
+        }
+
+        function cycle(): string {
+            Theme.cyclePalette()
+            return Theme.palette
+        }
+
+        function current(): string {
+            return Theme.palette
+        }
+
+        function list(): string {
+            return Theme.palettes.join("\n")
+        }
+    }
+
     property var focusMode: IpcHandler {
         target: "focus-toggle"
         function toggle() {

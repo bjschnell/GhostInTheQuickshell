@@ -200,6 +200,7 @@ PanelWindow {
 
             property string searchQuery:     ""
             property bool   schemePopupOpen: false
+            property bool   palettePopupOpen: false
             property bool   folderMode:      false
             property string appliedScheme:   WallpaperService.scheme
 
@@ -603,7 +604,61 @@ PanelWindow {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape:  Qt.PointingHandCursor
-                            onClicked:    content.schemePopupOpen = !content.schemePopupOpen
+                            onClicked: {
+                                content.palettePopupOpen = false
+                                content.schemePopupOpen = !content.schemePopupOpen
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        id:                 paletteBtn
+                        width:              paletteBtnRow.implicitWidth + 20
+                        height:             32
+                        radius:             8
+                        color: paletteBtnMA.containsMouse
+                               ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.14)
+                               : (content.palettePopupOpen ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.18) : Qt.rgba(1,1,1,0.04))
+                        border.color: (content.palettePopupOpen || paletteBtnMA.containsMouse)
+                            ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.4)
+                            : Qt.rgba(1,1,1,0.09)
+                        border.width: 1
+                        Behavior on color        { ColorAnimation { duration: 100 } }
+                        Behavior on border.color { ColorAnimation { duration: 100 } }
+
+                        Row {
+                            id:                 paletteBtnRow; anchors.centerIn: parent; spacing: 7
+                            Text {
+                                text:                   "󰸼"
+                                font.pixelSize:         14
+                                color:                  (content.palettePopupOpen || paletteBtnMA.containsMouse) ? Theme.active : Qt.rgba(1,1,1,0.55)
+                                anchors.verticalCenter: parent.verticalCenter
+                                Behavior on color       { ColorAnimation { duration: 100 } }
+                            }
+                            Text {
+                                text:                   Theme.palette
+                                font.pixelSize:         12
+                                color:                  (content.palettePopupOpen || paletteBtnMA.containsMouse) ? Theme.active : Qt.rgba(1,1,1,0.7)
+                                anchors.verticalCenter: parent.verticalCenter
+                                Behavior on color       { ColorAnimation { duration: 100 } }
+                            }
+                            Text {
+                                text:                   content.palettePopupOpen ? "\u25b4" : "\u25be"
+                                font.pixelSize:         8
+                                color:                  (content.palettePopupOpen || paletteBtnMA.containsMouse) ? Theme.active : Qt.rgba(1,1,1,0.35)
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+
+                        MouseArea {
+                            id:           paletteBtnMA
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape:  Qt.PointingHandCursor
+                            onClicked: {
+                                content.schemePopupOpen = false
+                                content.palettePopupOpen = !content.palettePopupOpen
+                            }
                         }
                     }
                 }
@@ -656,8 +711,11 @@ PanelWindow {
             }
 
             TapHandler {
-                enabled:  content.schemePopupOpen
-                onTapped: content.schemePopupOpen = false
+                enabled:  content.schemePopupOpen || content.palettePopupOpen
+                onTapped: {
+                    content.schemePopupOpen  = false
+                    content.palettePopupOpen = false
+                }
             }
         }
 
@@ -750,6 +808,101 @@ PanelWindow {
                             onClicked: {
                                 WallpaperService.scheme = modelData
                                 content.schemePopupOpen = false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            id: paletteDropdown
+            z:       100
+            visible: content.palettePopupOpen
+            clip:    false
+
+            width:  paletteDropdownCol.implicitWidth + 32
+            height: paletteDropdownCol.implicitHeight + 16
+            radius: Theme.cornerRadius
+
+            color:        Theme.background
+            border.color: Theme.active
+            border.width: 1
+
+            opacity:            content.palettePopupOpen ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 140 } }
+
+            onVisibleChanged: {
+                if (visible) {
+                    var pos = paletteBtn.mapToItem(sizer, 0, 0)
+                    x = Math.min(pos.x, sizer.width - width - 4)
+                    y = pos.y - height - 6
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked:    {}
+            }
+
+            ColumnLayout {
+                id:               paletteDropdownCol
+                anchors.centerIn: parent
+                spacing:          4
+
+                Repeater {
+                    model: Theme.palettes
+                    delegate: Rectangle {
+                        id: paletteItem
+                        required property string modelData
+                        property bool sel: Theme.palette === modelData
+
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: paletteItemText.implicitWidth + 40
+                        Layout.preferredHeight: 32
+
+                        radius: 8
+                        color: paletteItemMA.containsMouse
+                            ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.14)
+                            : (sel ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.22) : "transparent")
+
+                        border.color: (sel || paletteItemMA.containsMouse)
+                            ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.28)
+                            : "transparent"
+                        border.width: 1
+
+                        Behavior on color        { ColorAnimation { duration: 100 } }
+                        Behavior on border.color { ColorAnimation { duration: 100 } }
+
+                        Row {
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: 12
+                            spacing: 10
+
+                            Text {
+                                text:                   paletteItem.sel ? "\u25cf" : "\u25cb"
+                                font.pixelSize:         10
+                                color:                  (paletteItem.sel || paletteItemMA.containsMouse) ? Theme.active : Qt.rgba(1,1,1,0.3)
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                            Text {
+                                id:                     paletteItemText
+                                text:                   paletteItem.modelData
+                                font.pixelSize:         13
+                                color:                  (paletteItem.sel || paletteItemMA.containsMouse) ? Theme.text : Qt.rgba(1,1,1,0.65)
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+
+                        MouseArea {
+                            id:           paletteItemMA
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape:  Qt.PointingHandCursor
+                            onClicked: {
+                                Theme.setPalette(paletteItem.modelData)
+                                content.palettePopupOpen = false
                             }
                         }
                     }
