@@ -88,7 +88,7 @@ check_command "matugen"
 echo ""
 echo "# CLIPBOARD"
 check_command "wtype"
-check_command "cliphist"
+check_command "perl"
 
 echo ""
 echo "# POWER & HARDWARE"

@@ -42,7 +42,7 @@
 - **Notifications** — DBus Notifcations via libnotify
 - **Audio Control** — PipeWire volume & device management
 - **Screen Recorder** — Built-in recording with wf-recorder
-- **Clipboard Manager** — Cliphist integration for history management
+- **Clipboard Manager** — In-shell history; refuses selections marked sensitive
 - **Lock & Idle** — Built-in lock screen and idle timeouts; no hyprlock or hypridle
 - **Polkit Agent** — Themed authentication dialog; no hyprpolkitagent
 - **Highly Customizable** — QML-based UI, easily extended
@@ -138,7 +138,7 @@ and builds nothing from source.
 - **mpv** – Opens finished recordings from the notification action
 - **slurp** – Region/window selection
 - **wtype** – Keyboard input emulation
-- **cliphist** – Clipboard history manager
+- **perl** – Decodes clipboard text encodings in `src/scripts/clipboard-capture.sh`
 
 </details>
 

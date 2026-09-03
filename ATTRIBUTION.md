@@ -22,6 +22,8 @@ files, each of which also carries an attribution note in its own header:
 | `src/config/logind-inhibit-delay.conf` | `etc/systemd/logind.conf.d/20-inhibit-delay.conf` |
 | `src/services/system/PolkitService.qml` | `shell/plugins/polkit/PolkitAgent.qml`, `PolkitModel.js` |
 | `src/windows/PolkitDialog.qml` | `shell/plugins/polkit/PolkitAgent.qml` |
+| `src/scripts/clipboard-capture.sh` | `shell/plugins/clipboard/capture.sh` |
+| `src/services/ClipboardService.qml` (capture path) | `shell/plugins/clipboard/Clipboard.qml` |
 
 `src/services/system/IdleService.qml` is *not* ported from Omarchy. Their idle
 service chains a single `IdleMonitor` to manual timers because launching their

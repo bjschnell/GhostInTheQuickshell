@@ -279,6 +279,35 @@ QtObject {
         }
     }
 
+    // ── Clipboard ────────────────────────────────────────────
+    // qs ipc call clipboard status  — counts only, never contents
+    // qs ipc call clipboard wipe
+
+    property var clipboardStatus: IpcHandler {
+        target: "clipboard"
+
+        // Deliberately reports no entry text: this is for checking that capture
+        // is alive, and piping clipboard contents through IPC would undo the
+        // point of refusing to store them.
+        function status(): string {
+            var images = 0
+            for (var i = 0; i < ClipboardService.entries.length; i++)
+                if (ClipboardService.entries[i].isImage) images += 1
+
+            return JSON.stringify({
+                entries: ClipboardService.entries.length,
+                images:  images,
+                pinned:  ClipboardService.pinned.length,
+                limit:   ClipboardService.maxEntries
+            })
+        }
+
+        function wipe(): string {
+            ClipboardService.wipeHistory()
+            return "ok"
+        }
+    }
+
     // ── Polkit ───────────────────────────────────────────────
     // qs ipc call polkit status
     // "registered": false means another agent has the session — check that

@@ -39,10 +39,11 @@ Item {
             var e = hist[hi]
             if (!e.isImage && (lookup[e.preview] || lookup[(e.preview ?? "").trim()])) continue
             result.push({
-                kind:    "entry",
-                id:      e.id,
-                preview: e.preview,
-                isImage: e.isImage ?? false
+                kind:      "entry",
+                id:        e.id,
+                preview:   e.preview,
+                isImage:   e.isImage ?? false,
+                imagePath: e.imagePath ?? ""
             })
         }
 
@@ -182,6 +183,7 @@ Item {
                     previewText: modelData.preview ?? ""
                     fullText:    modelData.kind === "pinned" ? (modelData.text ?? "") : ""
                     isImage:     modelData.isImage ?? false
+                    imagePath:   modelData.imagePath ?? ""
                     pinnedIndex: modelData.kind === "pinned" ? modelData.pinIndex : -1
                 }
             }
@@ -213,30 +215,16 @@ component ClipRow: Item {
     id: row
 
     property bool   isPinned:    false
-    property string entryId:     ""   // cliphist row id (for history) or storedId (for pinned)
-    property string previewText: ""   // cliphist list preview string
+    property string entryId:     ""   // history entry id, or storedId for a pinned row
+    property string previewText: ""   // single-line display string
     property string fullText:    ""   // full decoded text (pinned items only)
     property bool   isImage:     false
     property int    pinnedIndex: -1
 
-    // Image preview: decoded to a temp file per entry id
-    property string _imgPath: ""
-
-    property var _imgDecodeProc: Process {
-        command: []
-        running: false
-        onRunningChanged: {
-            if (!running) row._imgPath = "/tmp/clip_prev_" + row.entryId
-        }
-    }
-
-    Component.onCompleted: {
-        if (row.isImage && row.entryId !== "") {
-            _imgDecodeProc.command = ["bash", "-c",
-                "cliphist decode '" + row.entryId + "' > '/tmp/clip_prev_" + row.entryId + "' 2>/dev/null"]
-            _imgDecodeProc.running = true
-        }
-    }
+    // ClipboardService already stores images as files, so the thumbnail reads
+    // the entry's own file. The old path decoded each one into /tmp on display,
+    // which left a copy behind for every image ever previewed.
+    property string imagePath: ""
 
     // Collapse height to zero for animated removal
     property bool _removing: false
@@ -301,7 +289,7 @@ component ClipRow: Item {
                     Image {
                         id: thumbImg
                         anchors.fill: parent
-                        source:   row._imgPath !== "" ? ("file://" + row._imgPath) : ""
+                        source:   row.imagePath !== "" ? ("file://" + row.imagePath) : ""
                         fillMode: Image.PreserveAspectCrop
                         smooth:   true
                         asynchronous: true

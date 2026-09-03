@@ -126,7 +126,7 @@ step 1 "Pacman Packages"
 # playback (playerctl, mpv-mpris, mpd-mpris) is handled by Quickshell's own
 # Mpris service, and there is no screenshot feature to need grimblast.
 #
-# quickshell, awww, matugen, cliphist and hyprshutdown all live in the
+# quickshell, awww, matugen and hyprshutdown all live in the
 # official [extra] repo, so Ghost needs no AUR helper and builds nothing
 # from source.
 PACMAN_DEPS=(
@@ -156,8 +156,9 @@ PACMAN_DEPS=(
     # Wallpaper / theming
     imagemagick awww matugen
 
-    # Input simulation / clipboard history
-    wtype cliphist
+    # Input simulation  (clipboard history is owned by ClipboardService,
+    # which drives wl-paste --watch itself; perl decodes text encodings)
+    wtype perl
 
     # Hardware sensors
     lm_sensors
@@ -220,8 +221,6 @@ _append_conf() {
 exec-once = awww-daemon
 exec-once = quickshell -c $HOME/.local/src/Ghost/.
 exec-once = bash $HOME/.local/src/Ghost/src/scripts/sleep-monitor.sh
-exec-once = wl-paste --type text --watch cliphist store
-exec-once = wl-paste --type image --watch cliphist store
 EOF
 }
 
@@ -233,8 +232,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("quickshell -c " .. os.getenv("HOME") .. "/.local/src/Ghost")
     hl.exec_cmd("bash " .. os.getenv("HOME") .. "/.local/src/Ghost/src/scripts/sleep-monitor.sh")
-    hl.exec_cmd("wl-paste --type text --watch cliphist store")
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)
 EOF
 }
