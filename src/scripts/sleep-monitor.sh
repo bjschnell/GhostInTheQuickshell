@@ -59,9 +59,26 @@ case ${1:-} in
         ;;
 esac
 
-exec systemd-inhibit \
-    --what=sleep \
-    --mode=delay \
-    --who=Ghost \
-    --why="Lock screen before suspend" \
-    bash "$GHOST_PATH/src/scripts/sleep-monitor.sh" --inhibited
+# Two instances would each hold an inhibitor and each fire a lock, so the first
+# one to start wins and any later one exits quietly.
+exec {lock_fd}>"${XDG_RUNTIME_DIR:-/tmp}/ghost-sleep-monitor.lock"
+flock -n "$lock_fd" || exit 0
+
+# Handling an event means letting go of the inhibitor, because that release is
+# what lets the suspend it just locked for actually proceed. So one pass covers
+# exactly one suspend and the inhibitor has to be re-taken for the next.
+# Omarchy gets that from its systemd unit's Restart=always; Ghost starts this
+# from Hyprland's autostart, so the loop lives here instead.
+while true; do
+    systemd-inhibit \
+        --what=sleep \
+        --mode=delay \
+        --who=Ghost \
+        --why="Lock screen before suspend" \
+        bash "$GHOST_PATH/src/scripts/sleep-monitor.sh" --inhibited
+
+    # Let logind get on with the suspend it was delayed for. Re-arming inside
+    # that window would take a fresh delay inhibitor against the very suspend
+    # just released, holding the machine awake for another full window.
+    sleep 2
+done
