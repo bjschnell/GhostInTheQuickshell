@@ -13,6 +13,7 @@ ShellRoot {
     // Owns WlSessionLock, which covers every screen itself — so it belongs here
     // and NOT inside the per-screen Variants below.
     property var _lock:       LockService   // lock screen  (replaces hyprlock)
+    property var _polkit:     PolkitService // auth agent   (replaces hyprpolkitagent)
 
     Variants {
         model: Quickshell.screens

@@ -163,7 +163,7 @@ PACMAN_DEPS=(
     lm_sensors
 
     # Hyprland ecosystem  (hyprshutdown backs src/scripts/PowerControl.sh)
-    hyprland hyprsunset hyprpolkitagent hyprshutdown
+    hyprland hyprsunset hyprshutdown
     xdg-desktop-portal-hyprland
 
     # Fonts — provides the "JetBrainsMono Nerd Font" family Theme.fontMono asks
@@ -220,7 +220,6 @@ _append_conf() {
 exec-once = awww-daemon
 exec-once = quickshell -c $HOME/.local/src/Ghost/.
 exec-once = bash $HOME/.local/src/Ghost/src/scripts/sleep-monitor.sh
-exec-once = systemctl --user start hyprpolkitagent
 exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
 EOF
@@ -234,7 +233,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("quickshell -c " .. os.getenv("HOME") .. "/.local/src/Ghost")
     hl.exec_cmd("bash " .. os.getenv("HOME") .. "/.local/src/Ghost/src/scripts/sleep-monitor.sh")
-    hl.exec_cmd("systemctl --user start hyprpolkitagent")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)

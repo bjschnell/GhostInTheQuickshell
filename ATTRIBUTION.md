@@ -20,6 +20,8 @@ files, each of which also carries an attribution note in its own header:
 | `src/scripts/sleep-monitor.sh` | `bin/omarchy-system-sleep-monitor` |
 | `src/scripts/install-lock-pam.sh` | `bin/omarchy-apply-lock` |
 | `src/config/logind-inhibit-delay.conf` | `etc/systemd/logind.conf.d/20-inhibit-delay.conf` |
+| `src/services/system/PolkitService.qml` | `shell/plugins/polkit/PolkitAgent.qml`, `PolkitModel.js` |
+| `src/windows/PolkitDialog.qml` | `shell/plugins/polkit/PolkitAgent.qml` |
 
 `src/services/system/IdleService.qml` is *not* ported from Omarchy. Their idle
 service chains a single `IdleMonitor` to manual timers because launching their

@@ -9,3 +9,4 @@ singleton KeybindService 1.0 services/config_tab/KeybindService.qml
 singleton UpdateService 1.0 services/UpdateService.qml
 singleton IdleService 1.0 services/system/IdleService.qml
 singleton LockService 1.0 services/system/LockService.qml
+singleton PolkitService 1.0 services/system/PolkitService.qml

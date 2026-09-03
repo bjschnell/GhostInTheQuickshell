@@ -279,6 +279,19 @@ QtObject {
         }
     }
 
+    // ── Polkit ───────────────────────────────────────────────
+    // qs ipc call polkit status
+    // "registered": false means another agent has the session — check that
+    // hyprpolkitagent is really gone.
+
+    property var polkit: IpcHandler {
+        target: "polkit"
+
+        function status(): string {
+            return PolkitService.statusJson()
+        }
+    }
+
     // ── Lock ─────────────────────────────────────────────────
     // qs ipc call lock lock
     // qs ipc call lock status

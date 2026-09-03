@@ -44,6 +44,7 @@
 - **Screen Recorder** — Built-in recording with wf-recorder
 - **Clipboard Manager** — Cliphist integration for history management
 - **Lock & Idle** — Built-in lock screen and idle timeouts; no hyprlock or hypridle
+- **Polkit Agent** — Themed authentication dialog; no hyprpolkitagent
 - **Highly Customizable** — QML-based UI, easily extended
 
 > **Note:** Ghost is currently in its `v0.1.0` release. While the core architecture and theming pipeline are feature-complete, you may encounter bugs. Please report them via GitHub Issues!
@@ -153,7 +154,6 @@ and builds nothing from source.
 
 - **hyprsunset** – Blue light filter
 - **hyprshutdown** – Graceful shutdown
-- **hyprpolkitagent** – Polkit authentication agent
 - **xdg-desktop-portal-hyprland** – Portal backend
 
 </details>
