@@ -279,6 +279,67 @@ QtObject {
         }
     }
 
+    // ── Lock ─────────────────────────────────────────────────
+    // qs ipc call lock lock
+    // qs ipc call lock status
+    // qs ipc call lock preview / hidePreview   (design the lock without locking)
+
+    property var lockScreen: IpcHandler {
+        target: "lock"
+
+        // The reply matters: src/scripts/sleep-lock.sh reads "missing-pam" to
+        // tell a lock that will never happen from one still in progress.
+        function lock(): string {
+            if (!LockService.passwordPamConfigured) return "missing-pam"
+            if (!LockService.locked && !LockService.lock()) return "failed"
+            return "ok"
+        }
+
+        function isLocked(): string {
+            return LockService.locked ? "true" : "false"
+        }
+
+        function status(): string {
+            return LockService.statusJson()
+        }
+
+        function preview(): string {
+            LockService.refreshBackground()
+            LockService.refreshFingerprintStatus()
+            LockService.previewVisible = true
+            return "ok"
+        }
+
+        function hidePreview(): string {
+            LockService.previewVisible = false
+            return "ok"
+        }
+    }
+
+    // ── Idle ─────────────────────────────────────────────────
+    // qs ipc call idle status
+    // qs ipc call idle enable / disable / toggle
+
+    property var idle: IpcHandler {
+        target: "idle"
+
+        function status(): string {
+            return IdleService.statusJson()
+        }
+
+        function enable(): string {
+            return IdleService.setEnabled(true) ? "enabled" : "disabled"
+        }
+
+        function disable(): string {
+            return IdleService.setEnabled(false) ? "enabled" : "disabled"
+        }
+
+        function toggle(): string {
+            return IdleService.setEnabled(!IdleService.enabled) ? "enabled" : "disabled"
+        }
+    }
+
     property var focusMode: IpcHandler {
         target: "focus-toggle"
         function toggle() {

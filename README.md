@@ -43,6 +43,7 @@
 - **Audio Control** — PipeWire volume & device management
 - **Screen Recorder** — Built-in recording with wf-recorder
 - **Clipboard Manager** — Cliphist integration for history management
+- **Lock & Idle** — Built-in lock screen and idle timeouts; no hyprlock or hypridle
 - **Highly Customizable** — QML-based UI, easily extended
 
 > **Note:** Ghost is currently in its `v0.1.0` release. While the core architecture and theming pipeline are feature-complete, you may encounter bugs. Please report them via GitHub Issues!
@@ -114,6 +115,8 @@ and builds nothing from source.
 - **Polkit** – Privilege escalation
 - **python** – Helper scripts (stdlib only; no pip packages)
 - **wl-clipboard** – Wayland clipboard (wl-copy/wl-paste)
+- **jq** – Parses `hyprctl -j` output in `src/scripts/session-locked.sh`
+- **dbus** – Provides `dbus-monitor`, which reads logind's `PrepareForSleep`
 
 </details>
 
@@ -148,8 +151,6 @@ and builds nothing from source.
 <details open>
 <summary><b>Hyprland Integration</b></summary>
 
-- **hyprlock** – Lock screen
-- **hypridle** – Idle management daemon
 - **hyprsunset** – Blue light filter
 - **hyprshutdown** – Graceful shutdown
 - **hyprpolkitagent** – Polkit authentication agent
@@ -202,6 +203,7 @@ Ghost is actively developed and welcomes contributions!
 - **[Wayland Project](https://wayland.freedesktop.org)** – For the modern display protocol foundation
 - **[Celestial Shell](https://github.com/caelestia-dots/shell)** & **[AX-Shell](https://github.com/Axenide/ax-shell)** — For the inspiration
 - **[NotCandy001](https://github.com/notcandy001)** — For the installer
+- **[Omarchy](https://github.com/basecamp/omarchy)** — The lock screen and sleep-lock pipeline are ported from Omarchy 4 (MIT). See [ATTRIBUTION.md](ATTRIBUTION.md)
 - **All the Testers & Contributors** — For their time put into testing and suggesting fixes.
 
 ---

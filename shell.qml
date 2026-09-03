@@ -9,6 +9,10 @@ ShellRoot {
     property var _keybinds:   KeybindService
     property var _updater:    UpdateService
     property var _ipc:        IpcManager
+    property var _idle:       IdleService   // idle timeouts (replaces hypridle)
+    // Owns WlSessionLock, which covers every screen itself — so it belongs here
+    // and NOT inside the per-screen Variants below.
+    property var _lock:       LockService   // lock screen  (replaces hyprlock)
 
     Variants {
         model: Quickshell.screens

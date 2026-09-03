@@ -146,6 +146,10 @@ PACMAN_DEPS=(
     libnotify polkit
     python wl-clipboard slurp
 
+    # Lock screen / idle  (jq parses hyprctl output in src/scripts/session-locked.sh;
+    # dbus reads logind's PrepareForSleep in src/scripts/sleep-monitor.sh)
+    jq dbus
+
     # Screen recording  (mpv opens finished recordings from the notification)
     wf-recorder cava mpv
 
@@ -159,7 +163,7 @@ PACMAN_DEPS=(
     lm_sensors
 
     # Hyprland ecosystem  (hyprshutdown backs src/scripts/PowerControl.sh)
-    hyprland hyprsunset hyprlock hyprpolkitagent hypridle hyprshutdown
+    hyprland hyprsunset hyprpolkitagent hyprshutdown
     xdg-desktop-portal-hyprland
 
     # Fonts — provides the "JetBrainsMono Nerd Font" family Theme.fontMono asks
@@ -214,8 +218,8 @@ _append_conf() {
 
 # Ghost Autostarts
 exec-once = awww-daemon
-exec-once = hypridle -c $HOME/.local/src/Ghost/src/config/hypridle.conf
 exec-once = quickshell -c $HOME/.local/src/Ghost/.
+exec-once = bash $HOME/.local/src/Ghost/src/scripts/sleep-monitor.sh
 exec-once = systemctl --user start hyprpolkitagent
 exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
@@ -228,8 +232,8 @@ _append_lua() {
 -- Ghost Autostarts
 hl.on("hyprland.start", function()
     hl.exec_cmd("awww-daemon")
-    hl.exec_cmd("hypridle -c " .. os.getenv("HOME") .. "/.local/src/Ghost/src/config/hypridle.conf")
     hl.exec_cmd("quickshell -c " .. os.getenv("HOME") .. "/.local/src/Ghost")
+    hl.exec_cmd("bash " .. os.getenv("HOME") .. "/.local/src/Ghost/src/scripts/sleep-monitor.sh")
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
@@ -270,13 +274,6 @@ mkdir -p "$USER_DATA" \
          "$HOME/.config/hypr/shaders" \
          "$HOME/.config/matugen/templates"
 
-# Copy hypridle config; -n = do not overwrite if already customised
-if cp -n "$REPO_DIR/src/config/hypridle.conf" "$HOME/.config/hypr/" 2>/dev/null; then
-    log_ok "hypridle.conf → $HOME/.config/hypr/"
-else
-    log_info "hypridle.conf already exists — not overwritten"
-fi
-
 printf '{"configProvider": "%s"}\n' "$CONFIG_TYPE" > "$USER_DATA/config_Provider.json"
 printf '{}\n'                                       > "$USER_DATA/keybinds.json"
 
@@ -290,6 +287,29 @@ mkdir -p "$HOME/Pictures/Wallpapers"
 cp -n -r "$REPO_DIR/src/assets/wallpapers"/* "$HOME/Pictures/Wallpapers/" 2>/dev/null || true
 
 log_ok "Cache directories initialized"
+
+# ── Lock Screen ───────────────────────────────────────────────────────────────
+# The shell's LockService refuses to lock until this PAM stack exists, so a
+# machine that skipped this step fails safe rather than showing a lock screen
+# that can never authenticate.
+echo ""
+log_info "Configuring lock screen authentication (needs sudo)..."
+if bash "$REPO_DIR/src/scripts/install-lock-pam.sh"; then
+    log_ok "PAM  →  /etc/pam.d/ghost-lock-password"
+else
+    log_warn "Lock screen PAM not configured — locking will be refused until you run"
+    log_warn "  bash $REPO_DIR/src/scripts/install-lock-pam.sh"
+fi
+
+# Five seconds is not enough to lock and settle displays on lid close; see the
+# drop-in's own comment for why this costs nothing when locking is healthy.
+if sudo install -Dm644 "$REPO_DIR/src/config/logind-inhibit-delay.conf" \
+        /etc/systemd/logind.conf.d/20-ghost-inhibit-delay.conf 2>/dev/null; then
+    sudo systemctl kill -s HUP systemd-logind 2>/dev/null || true
+    log_ok "logind  →  InhibitDelayMaxSec=15"
+else
+    log_warn "Could not install the logind inhibit-delay drop-in"
+fi
 
 # ── Keybind Conflict Detection ────────────────────────────────────────────────
 echo ""
