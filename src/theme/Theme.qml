@@ -17,6 +17,21 @@ QtObject {
     function setPalette(name) { Colors.setPalette(name) }
     function cyclePalette()   { Colors.cyclePalette() }
 
+    // Preview colors for a palette by name — see Colors.swatch().
+    function paletteSwatch(name) { return Colors.swatch(name) }
+
+    // Style selection — how surfaces are painted, independent of the palette
+    // that colors them. Read-only by design, like the palette: go through
+    // setStyle so the choice is persisted.
+    readonly property string style:  Colors.style
+    readonly property var    styles: Styles.names
+
+    function setStyle(name)  { Colors.setStyle(name) }
+    function cycleStyle()    { Colors.cycleStyle() }
+
+    // Surface treatment for a style by name — see Colors.styleSwatch().
+    function styleSwatch(name) { return Colors.styleSwatch(name) }
+
     // Colors
     property color background: Colors.background
     property color active:     Colors.active
@@ -25,6 +40,19 @@ QtObject {
     property color icon:       Colors.icon
     property color border:     Colors.border
     property color iconFont:   Colors.iconFont
+
+    // Styled surfaces — the palette's background under the style's treatment.
+    // `bar` is the notch silhouette, `surface` every popup.
+    property color barFill:    Colors.barFill
+    property color barRim:     Colors.barRim
+    property real  barOpacity: Colors.barOpacity
+
+    property color surface:        Colors.surface
+    property color surfaceRim:     Colors.surfaceRim
+    property real  surfaceOpacity: Colors.surfaceOpacity
+
+    property bool  barBlur:     Colors.barBlur
+    property int   barRimWidth: Metrics.barRimWidth
 
     property color wsBackground: Colors.wsBackground
     property color wsActive:     Colors.wsActive
@@ -35,6 +63,9 @@ QtObject {
 
     // Metrics
     property bool barEnabled: Metrics.barEnabled
+
+    property bool barExclusive:      Metrics.barExclusive
+    property int  revealStripHeight: Metrics.revealStripHeight
     
     property int borderWidth:   Metrics.borderWidth
     property int cornerRadius:  Metrics.cornerRadius
@@ -53,9 +84,19 @@ QtObject {
     property int cNotchMinWidth: Metrics.cNotchMinWidth
     property int cNotchMaxWidth: Metrics.cNotchMaxWidth
 
+    property bool leftAutoHide:    Metrics.leftAutoHide
+    property int  leftRevealWidth: Metrics.leftRevealWidth
+    property int  leftHideDelay:   Metrics.leftHideDelay
+
     property bool centerAutoHide:    Metrics.centerAutoHide
     property int  centerRevealWidth: Metrics.centerRevealWidth
     property int  centerHideDelay:   Metrics.centerHideDelay
+
+    property bool rightAutoHide:    Metrics.rightAutoHide
+    property int  rightRevealWidth: Metrics.rightRevealWidth
+    property int  rightHideDelay:   Metrics.rightHideDelay
+
+    property int revealHoldDuration: Metrics.revealHoldDuration
 
     property int rNotchMinWidth: Metrics.rNotchMinWidth
     property int rNotchMaxWidth: Metrics.rNotchMaxWidth

@@ -22,6 +22,12 @@ QtObject {
     
     
     property bool focusMode:    false
+
+    // True while the bar is holding screen space away from windows. Focus mode
+    // and a non-exclusive bar both hand it all back; the borders follow this so
+    // their rounded corners sit where the content actually starts.
+    readonly property bool barReservesSpace: !root.focusMode && Theme.barExclusive
+
     property bool dnd:          false
     property bool screenRecord: false
 

@@ -279,6 +279,32 @@ QtObject {
         }
     }
 
+    // ── Style ────────────────────────────────────────────────
+    // qs ipc call style set glass
+    // qs ipc call style cycle       (bindable to a key)
+
+    property var style: IpcHandler {
+        target: "style"
+
+        function set(name: string): string {
+            Theme.setStyle(name)
+            return Theme.style
+        }
+
+        function cycle(): string {
+            Theme.cycleStyle()
+            return Theme.style
+        }
+
+        function current(): string {
+            return Theme.style
+        }
+
+        function list(): string {
+            return Theme.styles.join("\n")
+        }
+    }
+
     // ── Clipboard ────────────────────────────────────────────
     // qs ipc call clipboard status  — counts only, never contents
     // qs ipc call clipboard wipe

@@ -14,6 +14,8 @@ ShellRoot {
     // and NOT inside the per-screen Variants below.
     property var _lock:       LockService   // lock screen  (replaces hyprlock)
     property var _polkit:     PolkitService // auth agent   (replaces hyprpolkitagent)
+    // Installs the backdrop-blur layer rule when a style asks for one
+    property var _blur:       BlurService
 
     Variants {
         model: Quickshell.screens

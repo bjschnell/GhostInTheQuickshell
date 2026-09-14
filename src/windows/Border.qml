@@ -1,10 +1,14 @@
 import Quickshell
+import Quickshell.Wayland
 import QtQuick
 import "../"
 import "../services/"
 
 PanelWindow {
     id: root
+
+    // Named so BlurService's ^ghost- rule can reach it.
+    WlrLayershell.namespace: "ghost-border"
 
     property string edge: "bottom"
     property bool isBarEnabled: Theme.barEnabled
@@ -26,7 +30,7 @@ PanelWindow {
     }
 
     margins {
-        top: (edge !== "bottom") ? ShellState.focusMode ? Theme.borderWidth : Theme.notchHeight: 0
+        top: (edge !== "bottom") ? (ShellState.barReservesSpace ? Theme.notchHeight : Theme.borderWidth) : 0
         Behavior on top { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic }}
         
         bottom: (edge !== "bottom") ? radius : 0

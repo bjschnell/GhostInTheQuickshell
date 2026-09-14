@@ -9,6 +9,9 @@ import "../"
 PanelWindow {
     id: root
 
+    // Named so BlurService's ^ghost- rule can reach it.
+    WlrLayershell.namespace: "ghost-clipboard"
+
     readonly property int popupWidth:  420
     readonly property int popupHeight: 560
     readonly property int fw: Theme.cornerRadius
@@ -76,7 +79,7 @@ PanelWindow {
         PopupShape {
             anchors.fill: parent
             attachedEdge: "bottom-right"
-            color:        Theme.background
+            color:        Theme.surface
             radius:       Theme.cornerRadius
             flareWidth:   root.fw
             flareHeight:  root.fh

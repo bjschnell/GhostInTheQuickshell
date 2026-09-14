@@ -89,7 +89,7 @@ PopupWindow {
         width:  root.implicitWidth
         implicitHeight: col.implicitHeight + 12
         radius: Theme.cornerRadius
-        color:  Theme.background
+        color:  Theme.surface
         border.width: 1
         border.color: Theme.border
 

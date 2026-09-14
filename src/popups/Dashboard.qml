@@ -18,6 +18,9 @@ import "../"
 PanelWindow {
     id: root
 
+    // Named so BlurService's ^ghost- rule can reach it.
+    WlrLayershell.namespace: "ghost-dashboard"
+
     // Kept so existing instantiation sites that pass anchorWindow: … still compile.
     required property var anchorWindow
 
@@ -121,7 +124,7 @@ PanelWindow {
         PopupShape {
             anchors.fill: parent
             attachedEdge: "top"
-            color:        Theme.background
+            color:        Theme.surface
             radius:       Theme.cornerRadius
             flareWidth:   root.fw
             flareHeight:  root.fh

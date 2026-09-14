@@ -1,12 +1,19 @@
 import QtQuick
 import "../"
+import "surface.js" as Surface
 
 // Draws a popup background that "melts" into whichever edge(s) it's attached to.
 Canvas {
     id: root
 
     property string attachedEdge: "top"
-    property color color: Theme.background
+
+    // The styled popup surface, not the raw background role: a style may paint
+    // it translucent and rimmed. Solid paints it exactly as before.
+    property color color: Theme.surface
+
+    property color rimColor: Theme.surfaceRim
+    property int   rimWidth: Theme.barRimWidth
     
     // Normal corner radius for the edges away from the notch
     property int radius: Theme.cornerRadius
@@ -20,6 +27,9 @@ Canvas {
     onHeightChanged:       requestPaint()
     onAttachedEdgeChanged: requestPaint()
     onColorChanged:        requestPaint()
+    onRimColorChanged:     requestPaint()
+    onRimWidthChanged:     requestPaint()
+
     onFlareWidthChanged:   requestPaint()
     onFlareHeightChanged:  requestPaint()
 
@@ -34,7 +44,6 @@ Canvas {
         var fh = flareHeight
 
         ctx.beginPath()
-        ctx.fillStyle = root.color
 
         // We use quadraticCurveTo(cpx, cpy, x, y) for the flares to allow
         // asymmetric stretching (making them higher/wider than a perfect circle).
@@ -130,6 +139,7 @@ Canvas {
             break
         }
 
-        ctx.fill()
+        // Fill and rim, both onto the path just built.
+        Surface.finish(ctx, root.color, root.rimColor, root.rimWidth)
     }
 }

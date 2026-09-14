@@ -13,6 +13,9 @@ import "../"
 PanelWindow {
     id: root
 
+    // Named so BlurService's ^ghost- rule can reach it.
+    WlrLayershell.namespace: "ghost-wallpaper"
+
     anchors.top:    true
     anchors.left:   true
     anchors.right:  true
@@ -181,7 +184,7 @@ PanelWindow {
         PopupShape {
             anchors.fill: parent
             attachedEdge: "bottom"
-            color:        Theme.background
+            color:        Theme.surface
             radius:       Theme.cornerRadius
             flareWidth:   root.fw
             flareHeight:  root.fh

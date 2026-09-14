@@ -90,7 +90,7 @@ PopupWindow {
 				id: bg
 				anchors.fill: parent
 				attachedEdge: "right"
-				color:        Theme.background
+				color:        Theme.surface
 				radius:       Theme.cornerRadius
 				flareWidth:   root.fw
 				flareHeight:  root.fh

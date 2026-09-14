@@ -1,4 +1,6 @@
 import Quickshell
+import Quickshell.Wayland
+import Quickshell.Hyprland
 import QtQuick
 import "../components"
 import "../modules/Center/"
@@ -11,6 +13,11 @@ PanelWindow {
     id: root
 
     property string screenName: screen ? screen.name : ""
+
+    // Its own layer namespace, so a style that wants a blurred backdrop can be
+    // matched by BlurService's layer rule without catching the border strips,
+    // which share the default quickshell namespace.
+    WlrLayershell.namespace: BlurService.layerNamespace
 
     color: "transparent"
 
@@ -32,9 +39,63 @@ PanelWindow {
         NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic }
     }
 
-    exclusiveZone: ShellState.focusMode ? 0 : Theme.exclusionGap
+    // A non-exclusive bar reserves nothing, so windows sit at full screen and a
+    // revealed notch floats over them. Reserving space instead would mean every
+    // reveal resized every tiled window and resized it back again.
+    exclusiveZone: ShellState.barReservesSpace ? Theme.exclusionGap : 0
     Behavior on exclusiveZone {
         NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic }
+    }
+
+    // ── Input mask ─────────────────────────────────────────────────
+    // Without a mask the bar takes every click in the full-width strip it
+    // covers. That was harmless while it reserved that strip from windows, but
+    // a floating bar has window content underneath, and anything the mask
+    // covers is a click that content never sees.
+    //
+    // So each side is trimmed to its trigger sliver while retracted — the
+    // screen edge stops the pointer, so a few px catches every deliberate
+    // reveal — and opens to the full notch height once revealed, taking
+    // whichever is wider, the notch or its reveal strip.
+    readonly property int _sliverHeight: ShellState.barReservesSpace
+                                         ? Theme.notchHeight
+                                         : Theme.revealStripHeight
+
+    function _maskHeight(revealed) {
+        return revealed ? Theme.notchHeight : root._sliverHeight
+    }
+
+    readonly property int _leftMaskWidth: leftReveal.revealed
+        ? Math.max(Theme.leftRevealWidth, root.lWidth)
+        : Theme.leftRevealWidth
+
+    readonly property int _centerMaskWidth: centerReveal.revealed
+        ? Math.max(Theme.centerRevealWidth, root.cWidth)
+        : Theme.centerRevealWidth
+
+    readonly property int _rightMaskWidth: rightReveal.revealed
+        ? Math.max(Theme.rightRevealWidth, root.rWidth)
+        : Theme.rightRevealWidth
+
+    mask: Region {
+        Region {
+            x:      0
+            y:      0
+            width:  root._leftMaskWidth
+            height: root._maskHeight(leftReveal.revealed)
+        }
+        Region {
+            x:      Math.round((root.width - root._centerMaskWidth) / 2)
+            y:      0
+            width:  root._centerMaskWidth
+            height: root._maskHeight(centerReveal.revealed)
+        }
+        Region {
+            x:      root.width - root._rightMaskWidth
+            y:      0
+            width:  root._rightMaskWidth
+            height: root._maskHeight(rightReveal.revealed)
+        }
     }
 
     readonly property int lWidth: Math.max(
@@ -62,52 +123,100 @@ PanelWindow {
         Math.min(Theme.rNotchMaxWidth, rightContent.implicitWidth + Theme.notchPadding * 2)
     )
 
-    // ── Center island auto-hide ──────────────────────────────────────────────
-    // The center notch stays retracted into the top edge until the pointer
-    // enters the reveal strip above it. It only ever carried the active window
-    // title, which Hyprland already tells you by highlighting the window.
+    // ── Notch auto-hide ──────────────────────────────────────────────────────
+    // Each notch stays retracted into the top edge until it has something to
+    // say. NotchReveal owns that decision and doubles as the hover strip; the
+    // strips are declared before the content layer so they sit underneath it
+    // and never intercept taps meant for the notch contents.
     //
-    // Pinned open whenever the notch holds controls you must be able to reach
-    // without hunting for them: the dashboard anchors to it, and the screen
-    // recorder puts its record / stop / discard buttons inside it.
-    readonly property bool centerPinned: Popups.dashboardOpen
-                                         || ShellState.screenRecord
-                                         || ScreenRecService.recording
+    // A notch is pinned open whenever it holds controls you must be able to
+    // reach without hunting for them — anything anchored to it that is open.
 
-    property bool centerHovered: false
+    // Left — workspaces, layout, the Arch menu trigger. Comes out on its own
+    // whenever the focused workspace changes (see the Hyprland listener below),
+    // which is the moment you actually want to know which one you landed on.
+    NotchReveal {
+        id: leftReveal
+        width:  Theme.leftRevealWidth
+        height: parent.height
+        anchors.left: parent.left
+        anchors.top:  parent.top
 
-    readonly property bool centerRevealed: !Theme.centerAutoHide
-                                           || root.centerPinned
-                                           || root.centerHovered
-
-    // Grace period so a pointer clipping the strip edge does not make the
-    // island stutter, and so you can travel into it without it retracting.
-    Timer {
-        id: centerHideTimer
-        interval: Theme.centerHideDelay
-        onTriggered: root.centerHovered = false
+        autoHide:  Theme.leftAutoHide
+        hideDelay: Theme.leftHideDelay
+        pinned:    Popups.archMenuOpen || Popups.archMenuTriggerHovered
     }
 
-    // Reveal strip — a little wider than the notch so the edges are forgiving.
-    // Declared before the content layer so it sits underneath it and never
-    // intercepts taps meant for CenterContent.
-    Item {
-        id: centerRevealZone
+    // Center — only ever carried the active window title, which Hyprland
+    // already tells you by highlighting the window. The dashboard anchors to
+    // it, and the screen recorder puts its record / stop / discard buttons
+    // inside it, so both pin it open.
+    NotchReveal {
+        id: centerReveal
         width:  Theme.centerRevealWidth
         height: parent.height
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top:              parent.top
 
-        HoverHandler {
-            enabled: !ShellState.focusMode
-            onHoveredChanged: {
-                if (hovered) {
-                    centerHideTimer.stop()
-                    root.centerHovered = true
-                } else {
-                    centerHideTimer.restart()
-                }
-            }
+        autoHide:  Theme.centerAutoHide
+        hideDelay: Theme.centerHideDelay
+        pinned:    Popups.dashboardOpen
+                   || ShellState.screenRecord
+                   || ScreenRecService.recording
+    }
+
+    // Right — network, audio, clock, tray, notifications. Every popup that
+    // drops out of this notch pins it, and so does an incoming toast, which is
+    // what makes a notification arrive rather than merely be available.
+    NotchReveal {
+        id: rightReveal
+        width:  Theme.rightRevealWidth
+        height: parent.height
+        anchors.right: parent.right
+        anchors.top:   parent.top
+
+        autoHide:  Theme.rightAutoHide
+        hideDelay: Theme.rightHideDelay
+        pinned:    Popups.networkOpen || Popups.notificationsOpen
+                   || Popups.audioOpen || Popups.quickOpen
+                   || Popups.trayMenuOpen || Popups.notificationToastOpen
+                   || Popups.networkTriggerHovered
+                   || Popups.audioTriggerHovered
+                   || Popups.notificationsTriggerHovered
+    }
+
+    // ── Workspace switches pull the left notch out ───────────────────────────
+    // The dots carry no numbers, so a switch is the one moment the left notch
+    // is worth looking at. Reveal state is per-screen (one TopBar per monitor),
+    // so only the bar on the monitor that actually changed comes out.
+    Connections {
+        target: Hyprland
+
+        function onRawEvent(event) {
+            var monitorScoped = event.name === "focusedmon"
+                                || event.name === "focusedmonv2"
+                                || event.name === "activemonitor"
+
+            var isWorkspaceEvent = monitorScoped
+                                   || event.name === "workspace"
+                                   || event.name === "workspacev2"
+                                   || event.name === "activespecial"
+                                   || event.name === "activespecialv2"
+
+            if (!isWorkspaceEvent) return
+
+            // Monitor events name their monitor up front. Workspace events do
+            // not, so ask Hyprland which monitor is focused.
+            var monitor = monitorScoped
+                ? String(event.data).split(",")[0]
+                : (Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "")
+
+            // An unnamed monitor reveals on every bar rather than none — a
+            // stray flash beats a notch that never answers.
+            if (monitor !== "" && root.screenName !== "" && monitor !== root.screenName)
+                return
+
+            leftReveal.reveal()
         }
     }
 
@@ -164,8 +273,17 @@ PanelWindow {
             centerWidth: root.cWidth
             rightWidth:  root.rWidth
 
-            centerDepth: root.centerRevealed ? Theme.notchHeight : Theme.borderWidth
+            leftDepth:   leftReveal.revealed   ? Theme.notchHeight : Theme.borderWidth
+            centerDepth: centerReveal.revealed ? Theme.notchHeight : Theme.borderWidth
+            rightDepth:  rightReveal.revealed  ? Theme.notchHeight : Theme.borderWidth
+
+            Behavior on leftDepth {
+                NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic }
+            }
             Behavior on centerDepth {
+                NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic }
+            }
+            Behavior on rightDepth {
                 NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic }
             }
         }
@@ -175,6 +293,18 @@ PanelWindow {
             width:        root.lWidth
             height:       Theme.notchHeight
             anchors.left: parent.left
+
+            // Content fades faster than the notch retracts, so it is gone
+            // before the shape behind it is. visible gates hit-testing, so a
+            // retracted notch cannot be clicked or scrolled by accident.
+            opacity: leftReveal.revealed ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: Math.round(Theme.animDuration * 0.6)
+                    easing.type: Easing.InOutCubic
+                }
+            }
 
             LeftContent {
                 id: leftContent
@@ -188,10 +318,7 @@ PanelWindow {
             height:           Theme.notchHeight
             anchors.centerIn: parent
 
-            // Fades faster than the notch retracts so the text is gone before
-            // the shape behind it is. visible gates hit-testing, so a retracted
-            // island cannot be tapped or scrolled by accident.
-            opacity: root.centerRevealed ? 1 : 0
+            opacity: centerReveal.revealed ? 1 : 0
             visible: opacity > 0
             Behavior on opacity {
                 NumberAnimation {
@@ -211,7 +338,16 @@ PanelWindow {
             width:         root.rWidth
             height:        Theme.notchHeight
             anchors.right: parent.right
-            
+
+            opacity: rightReveal.revealed ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: Math.round(Theme.animDuration * 0.6)
+                    easing.type: Easing.InOutCubic
+                }
+            }
+
             clip: true
 
             RightContent {

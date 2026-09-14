@@ -2,4 +2,5 @@ singleton Theme Theme.qml
 singleton Colors Colors.qml
 singleton Metrics Metrics.qml
 singleton Palettes Palettes.qml
+singleton Styles Styles.qml
 ColorLoader ColorLoader.qml

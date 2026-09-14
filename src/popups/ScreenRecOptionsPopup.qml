@@ -43,7 +43,7 @@ PopupWindow {
     Rectangle {
         anchors.fill: parent
         radius:       Theme.cornerRadius - 6
-        color:        Theme.background
+        color:        Theme.surface
         border.color: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.15)
         border.width: 1
     }
