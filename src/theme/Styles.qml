@@ -58,7 +58,7 @@ QtObject {
 
     readonly property var glass: ({
         "blur":  true,
-        "bar":   { "opacity": 0.55, "gain": 1.75, "rim": 0.22 },
+        "bar":   { "opacity": 0.42, "gain": 1.75, "rim": 0.22 },
         "popup": { "opacity": 0.74, "gain": 1.35, "rim": 0.14 }
     })
 

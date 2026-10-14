@@ -45,7 +45,48 @@ QtObject {
 
     property bool _installed: false
 
+    // Whether Hyprland will actually blur anything right now. The layer rule
+    // above only takes effect when the compositor's OWN global blur is on —
+    // `decoration:blur:enabled` — so a style asking for glass while that is
+    // off would otherwise render as a flat translucent slab with nothing
+    // behind it, and nothing in the shell would say why. Probed for real
+    // instead of assumed, and re-probed whenever Hyprland reloads.
+    property bool compositorBlurActive: false
+
     property Process _proc: Process {}
+
+    property Process _capabilityProc: Process {
+        command: ["hyprctl", "-j", "getoption", "decoration:blur:enabled"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var obj = JSON.parse(text)
+                    // Modern hyprctl returns {"bool": true/false}; older
+                    // builds returned {"int": 1/0} for the same option.
+                    root.compositorBlurActive = obj.bool !== undefined ? !!obj.bool : !!obj.int
+                } catch (e) {
+                    // hyprctl missing, not under Hyprland, or unexpected
+                    // output shape — treat as unavailable rather than guess.
+                    root.compositorBlurActive = false
+                }
+                root._warnIfUnavailable()
+            }
+        }
+    }
+
+    function _probeCapability() {
+        root._capabilityProc.running = true
+    }
+
+    function _warnIfUnavailable() {
+        if (Theme.barBlur && !root.compositorBlurActive) {
+            console.warn("[BlurService] Style '" + Theme.style + "' asks for a" +
+                " blurred bar, but Hyprland's decoration:blur:enabled is off —" +
+                " the bar will read as a flat translucent slab, not frosted" +
+                " glass. Enable blur in your Hyprland config to fix this.")
+        }
+    }
 
     function install() {
         // blur_popups matters as much as blur: most popups are xdg-popups of
@@ -81,6 +122,7 @@ QtObject {
     }
 
     function _sync() {
+        root._probeCapability()
         if (Theme.barBlur && !root._installed) root.install()
     }
 

@@ -145,6 +145,23 @@ QtObject {
     // `bar` is the notch silhouette; `surface` is every popup.
     readonly property bool barBlur: root._style.blur
 
+    // Relative luminance of the palette background, used only to classify it
+    // as light or dark — not accessibility-grade contrast math.
+    function _luminance(c) {
+        return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b
+    }
+
+    readonly property bool isLightPalette: root._luminance(root.background) > 0.5
+
+    // Raw alpha reads far more opaque over a light backdrop than a dark one —
+    // the same 0.55 that looks like frosted glass on Dracula looks like a
+    // chalky slab on a light palette. Gamma-correct so a style's opacity spec
+    // reads the same translucency regardless of which palette is active.
+    // Dark palettes (the common case here) are returned unchanged.
+    function _adaptiveOpacity(baseOpacity) {
+        return root.isLightPalette ? Math.pow(baseOpacity, 1.5) : baseOpacity
+    }
+
     // Scales the palette background rather than adding to it, so the ratio
     // between channels — and with it the palette's cast — survives being
     // lightened. See the note on `gain` in Styles.qml.
@@ -152,7 +169,7 @@ QtObject {
         return Qt.rgba(Math.min(1, root.background.r * spec.gain),
                        Math.min(1, root.background.g * spec.gain),
                        Math.min(1, root.background.b * spec.gain),
-                       spec.opacity)
+                       root._adaptiveOpacity(spec.opacity))
     }
 
     readonly property color barFill:  root._fill(root._style.bar)

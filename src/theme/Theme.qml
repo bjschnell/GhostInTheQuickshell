@@ -63,6 +63,9 @@ QtObject {
 
     // Metrics
     property bool barEnabled: Metrics.barEnabled
+    property bool dashboardStatsEnabled: Metrics.dashboardStatsEnabled
+    property bool dashboardClockEnabled:         Metrics.dashboardClockEnabled
+    property bool dashboardQuickSettingsEnabled: Metrics.dashboardQuickSettingsEnabled
 
     property bool barExclusive:      Metrics.barExclusive
     property int  revealStripHeight: Metrics.revealStripHeight
@@ -79,18 +82,8 @@ QtObject {
     property int notchVerticalPadding:   Metrics.notchVerticalPadding
     property int notchSideMargin:        Metrics.notchSideMargin
 
-    property int lNotchMinWidth: Metrics.lNotchMinWidth
-    property int lNotchMaxWidth: Metrics.lNotchMaxWidth
     property int cNotchMinWidth: Metrics.cNotchMinWidth
     property int cNotchMaxWidth: Metrics.cNotchMaxWidth
-
-    property bool leftAutoHide:    Metrics.leftAutoHide
-    property int  leftRevealWidth: Metrics.leftRevealWidth
-    property int  leftHideDelay:   Metrics.leftHideDelay
-
-    property bool centerAutoHide:    Metrics.centerAutoHide
-    property int  centerRevealWidth: Metrics.centerRevealWidth
-    property int  centerHideDelay:   Metrics.centerHideDelay
 
     property bool rightAutoHide:    Metrics.rightAutoHide
     property int  rightRevealWidth: Metrics.rightRevealWidth
@@ -119,6 +112,15 @@ QtObject {
     property int wsSpacing:     Metrics.wsSpacing
     property int wsPadding:     Metrics.wsPadding
     property int wsRadius:      Metrics.wsRadius
+
+    property int hudDotSize:      Metrics.hudDotSize
+    property int hudActiveWidth:  Metrics.hudActiveWidth
+    property int hudSpacing:      Metrics.hudSpacing
+    property int hudPadding:      Metrics.hudPadding
+    property int hudRadius:       Metrics.hudRadius
+    property int hudCenterOffset: Metrics.hudCenterOffset
+    property int hudHoldDuration: Metrics.hudHoldDuration
+    property int hudFadeDuration: Metrics.hudFadeDuration
 
     property int animDuration: Metrics.animDuration
 

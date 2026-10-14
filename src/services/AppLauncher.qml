@@ -5,8 +5,7 @@ import Quickshell
 import "../"
 
 // AppLauncher — scrollable app list + bottom search bar.
-// Lives inside Dashboard.qml on the "launcher" page.
-// Dashboard is PanelWindow with WlrKeyboardFocus.OnDemand,
+// Lives inside LauncherPopup.qml, a PanelWindow with WlrKeyboardFocus.Exclusive,
 // so TextInput receives keys without extra wiring.
 
 Item {
@@ -71,13 +70,97 @@ Item {
         launcher.command = ["bash", "-c", "setsid " + exec + " &>/dev/null &"]
         launcher.running = false
         launcher.running = true
-        Popups.dashboardOpen = false
+        Popups.launcherOpen = false
     }
 
     // ── Layout ────────────────────────────────────────────────────────────────
     Column {
         anchors.fill: parent
         spacing: 8
+
+        // Search bar
+        Rectangle {
+            id: searchBar
+            width: parent.width; height: 44; radius: 12
+            color: Qt.rgba(1,1,1,0.06)
+            border.color: searchInput.activeFocus
+                          ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.50)
+                          : Qt.rgba(1,1,1,0.12)
+            border.width: 1
+            Behavior on border.color { ColorAnimation { duration: 120 } }
+
+            Row {
+                anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
+                spacing: 10
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "󰍉"; font.pixelSize: 16
+                    color: searchInput.activeFocus
+                           ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.7)
+                           : Qt.rgba(1,1,1,0.35)
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                }
+
+                Item {
+                    width: parent.width - 26 - parent.spacing
+                    height: parent.height
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text:    "Search apps…"
+                        color:   Qt.rgba(1,1,1,0.22)
+                        font.pixelSize: 13
+                        visible: searchInput.text === ""
+                    }
+
+                    TextInput {
+                        id: searchInput
+                        anchors { fill: parent; topMargin: 2; bottomMargin: 2 }
+                        verticalAlignment: TextInput.AlignVCenter
+                        color:          Theme.text
+                        font.pixelSize: 13
+                        selectionColor: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.35)
+                        clip: true
+
+                        onTextChanged: {
+                            root.query    = text
+                            root.selIndex = root.filtered.length > 0 ? 0 : -1
+                            if (root.filtered.length > 0)
+                                appList.positionViewAtIndex(0, ListView.Beginning)
+                        }
+
+                        Keys.onUpPressed: {
+                            if (root.selIndex > 0) {
+                                root.selIndex--
+                                appList.positionViewAtIndex(root.selIndex, ListView.Contain)
+                            }
+                        }
+
+                        Keys.onDownPressed: {
+                            if (root.selIndex < root.filtered.length - 1) {
+                                root.selIndex++
+                                appList.positionViewAtIndex(root.selIndex, ListView.Contain)
+                            }
+                        }
+
+                        Keys.onReturnPressed: {
+                            if (root.selIndex >= 0 && root.selIndex < root.filtered.length)
+                                root.launch(root.filtered[root.selIndex].exec)
+                        }
+
+                        Keys.onEscapePressed: {
+                            if (text !== "") {
+                                text = ""
+                            } else {
+                                Popups.launcherOpen = false
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // App list
         Item {
@@ -227,90 +310,6 @@ Item {
                         hoverEnabled: true
                         onEntered:    root.selIndex = index
                         onClicked:    root.launch(modelData.exec)
-                    }
-                }
-            }
-        }
-
-        // Search bar
-        Rectangle {
-            id: searchBar
-            width: parent.width; height: 44; radius: 12
-            color: Qt.rgba(1,1,1,0.06)
-            border.color: searchInput.activeFocus
-                          ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.50)
-                          : Qt.rgba(1,1,1,0.12)
-            border.width: 1
-            Behavior on border.color { ColorAnimation { duration: 120 } }
-
-            Row {
-                anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
-                spacing: 10
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "󰍉"; font.pixelSize: 16
-                    color: searchInput.activeFocus
-                           ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.7)
-                           : Qt.rgba(1,1,1,0.35)
-                    Behavior on color { ColorAnimation { duration: 120 } }
-                }
-
-                Item {
-                    width: parent.width - 26 - parent.spacing
-                    height: parent.height
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text:    "Search apps…"
-                        color:   Qt.rgba(1,1,1,0.22)
-                        font.pixelSize: 13
-                        visible: searchInput.text === ""
-                    }
-
-                    TextInput {
-                        id: searchInput
-                        anchors { fill: parent; topMargin: 2; bottomMargin: 2 }
-                        verticalAlignment: TextInput.AlignVCenter
-                        color:          Theme.text
-                        font.pixelSize: 13
-                        selectionColor: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.35)
-                        clip: true
-
-                        onTextChanged: {
-                            root.query    = text
-                            root.selIndex = root.filtered.length > 0 ? 0 : -1
-                            if (root.filtered.length > 0)
-                                appList.positionViewAtIndex(0, ListView.Beginning)
-                        }
-
-                        Keys.onUpPressed: {
-                            if (root.selIndex > 0) {
-                                root.selIndex--
-                                appList.positionViewAtIndex(root.selIndex, ListView.Contain)
-                            }
-                        }
-
-                        Keys.onDownPressed: {
-                            if (root.selIndex < root.filtered.length - 1) {
-                                root.selIndex++
-                                appList.positionViewAtIndex(root.selIndex, ListView.Contain)
-                            }
-                        }
-
-                        Keys.onReturnPressed: {
-                            if (root.selIndex >= 0 && root.selIndex < root.filtered.length)
-                                root.launch(root.filtered[root.selIndex].exec)
-                        }
-
-                        Keys.onEscapePressed: {
-                            if (text !== "") {
-                                text = ""
-                            } else {
-                                Popups.dashboardOpen = false
-                            }
-                        }
                     }
                 }
             }

@@ -5,7 +5,7 @@ import Quickshell.Hyprland
 import "../../"
 
 // ─── LayoutDisplayer ────────────────────────────────────────────────────────
-// Small icon button beside the Workspaces module.
+// Small icon button in the right notch, beside ControlPanel.
 // Shows the active tiling layout for the focused workspace.
 //
 // Layout → symbol map:

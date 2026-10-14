@@ -33,9 +33,7 @@ PanelWindow {
     // ── Per-page content widths ───────────────────────────────────────────────
     readonly property var _pageWidths: ({
         "home":     900,
-        "stats":    900,
-        "launcher": 560,
-        "config":   900
+        "stats":    900
     })
 
     function _applyPageWidth(p) {
@@ -155,16 +153,17 @@ PanelWindow {
                 spacing: 0
 
                 // ── Tab bar ───────────────────────────────────────────────────
+                // Collapses to nothing while Home is the only page — comes
+                // back on its own if Theme.dashboardStatsEnabled flips true.
                 TabSwitcher {
                     id: tabBar
                     orientation: "horizontal"
                     width:       parent.width
+                    height:      Theme.dashboardStatsEnabled ? implicitHeight : 0
+                    visible:     Theme.dashboardStatsEnabled
                     currentPage: root.page
                     model: [
-                        { key: "home",     icon: "󰋜", label: "Home"   },
                         { key: "stats",    icon: "󰻠", label: "System" },
-                        { key: "launcher", icon: "󱓞", label: "Apps"   },
-                        { key: "config",   icon: "󰒓", label: "Config" },
                     ]
                     onPageChanged: function(key) { Popups.dashboardPage = key }
                 }
@@ -185,22 +184,10 @@ PanelWindow {
 
                     Item {
                         anchors.fill: parent
-                        visible:      root.page === "stats"
+                        visible:      root.page === "stats" && Theme.dashboardStatsEnabled
                         DashStats { anchors.fill: parent }
                     }
 
-                    Item {
-                        anchors.fill: parent
-                        visible:      root.page === "launcher"
-                        AppLauncher { anchors.fill: parent }
-                    }
-
-                    Item {
-                        anchors.fill: parent
-                        visible:      root.page === "config"
-                        ShellConfig { anchors.fill: parent }
-                    }
-                    
                     Keys.onEscapePressed: Popups.dashboardOpen = false
                 }
             }

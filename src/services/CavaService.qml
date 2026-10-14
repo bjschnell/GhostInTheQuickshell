@@ -5,7 +5,7 @@ import Quickshell.Io
 import Quickshell.Services.Mpris
 import "../"
 
-// Single cava process shared by CenterContent and PlayerCard.
+// Single cava process shared by CavaVisualizer and PlayerCard.
 // 32 bars at 30fps. isPlaying mirrors the active MPRIS player state.
 
 QtObject {

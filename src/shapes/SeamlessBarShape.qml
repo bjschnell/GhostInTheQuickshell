@@ -8,8 +8,10 @@ Canvas {
 
     // These are set by TopBar.qml with the real clamped widths.
     // They default to the Theme constraints so the shape is never empty.
-    property int leftWidth:   Theme.lNotchMinWidth
-    property int centerWidth: Theme.cNotchMinWidth
+    // Left and center have no notch of their own anymore (see TopBar), so
+    // both default shut.
+    property int leftWidth:   0
+    property int centerWidth: 0
     property int rightWidth:  Theme.rNotchMinWidth
 
     property int notchHeight:     Theme.notchHeight

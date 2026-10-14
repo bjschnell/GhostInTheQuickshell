@@ -25,12 +25,14 @@ QtObject {
 
     // ── Defaults ──────────────────────────────────────────────────────────────
     readonly property var _defaults: ({
-        "dashboard-home":     { mods: "SUPER",        key: "D",      label: "Dashboard: System",    group: "Dashboard"      },
-        "dashboard-stats":    { mods: "CTRL + SHIFT",  key: "ESCAPE", label: "Dashboard: Home",      group: "Dashboard"      },
-        "dashboard-launcher": { mods: "SUPER",        key: "Q",      label: "Dashboard: Apps",      group: "Dashboard"      },
-        // Unbound by default: SUPER + C collides with Hyprland's own close-window
-        // bind, and the Config tab is reachable from the dashboard tab strip.
-        "dashboard-config":   { mods: "",             key: "",       label: "Dashboard: Config",    group: "Dashboard"      },
+        "dashboard-home":     { mods: "SUPER",        key: "H",      label: "Dashboard: Home",       group: "Dashboard"      },
+        "dashboard-stats":    { mods: "CTRL + SHIFT",  key: "ESCAPE", label: "Dashboard: System",    group: "Dashboard"      },
+        "dashboard-launcher": { mods: "SUPER",        key: "Q",      label: "App Launcher",         group: "Popups"         },
+        // Was missing from _defaults entirely, so the Config tab's Keybinds
+        // page had no row to bind it from — that was the bug, not just an
+        // unset key.
+        "dashboard-agents":   { mods: "SUPER",        key: "T",      label: "AI Agents",            group: "Popups"         },
+        "dashboard-config":   { mods: "SUPER",        key: "G",      label: "Shell Config",         group: "Popups"         },
         "PowerMenu-toggle":   { mods: "SUPER",        key: "ESCAPE", label: "Arch Menu",            group: "Popups"         },
         "notification-toggle":{ mods: "SUPER",        key: "N",      label: "Notifications",        group: "Popups"         },
         "wallpaper-toggle":   { mods: "SUPER",        key: "W",      label: "Wallpaper",            group: "Popups"         },

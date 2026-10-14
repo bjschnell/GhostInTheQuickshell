@@ -34,6 +34,12 @@ Item {
     // Bottom-right corner → clipboard history + emoji
     ClipboardPopup {}
 
+    // Floats center-screen, like WorkspaceHUD — Dashboard pages pulled out
+    // into their own strict, keybind-driven overlays.
+    LauncherPopup {}
+    AgentsPopup {}
+    ConfigPopup {}
+
     // ── TopBar-anchored popups ───────────────────────────────
 
     // Right notch — audio
@@ -46,6 +52,12 @@ Item {
 
     // Center notch — dashboard (expands below the center notch)
     Dashboard {
+        anchorWindow: root.topBar
+    }
+
+    // Floats center-screen — flashes on a workspace switch, replaces the old
+    // always-on corner widget entirely.
+    WorkspaceHUD {
         anchorWindow: root.topBar
     }
 

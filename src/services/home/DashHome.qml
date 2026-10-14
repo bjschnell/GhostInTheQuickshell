@@ -2,15 +2,21 @@ import QtQuick
 import Quickshell.Io
 import "../"
 import "../../components"
+import "../../"
 
 // Dashboard Home tab — layout only.
 //
 //  ┌──────────────┬───────────────────────────┬──────────────┐
-//  │ ProfileCard  │  ClockCard                │              │
-//  ├──────────────┤                           │ QuickSettings│
-//  │ CalendarCard │  PlayerCard               │ (brightness  │
-//  │              │                           │  + toggles)  │
+//  │ ProfileCard  │  ClockCard (off by default)│              │
+//  ├──────────────┤                           │ ScreenRecCard│
+//  │ CalendarCard │  PlayerCard               │ (QuickSettings│
+//  │              │                           │  if re-enabled)│
 //  └──────────────┴───────────────────────────┴──────────────┘
+//
+// dashboardClockEnabled hides ClockCard (center column reflows to fill the
+// space). The right column always holds something now — QuickSettings when
+// dashboardQuickSettingsEnabled is on, ScreenRecCard otherwise — so the
+// center column's right edge no longer needs to react to that flag itself.
 
 Item {
     id: root
@@ -81,11 +87,25 @@ Item {
         }
     }
 
-    // ── Right column — QuickSettings fills full height ────────────────────────
-    QuickSettings {
+    // ── Right column — always occupied ────────────────────────────────────────
+    // QuickSettings' two used tiles have their own keybinds now, so it stays
+    // off by default (Metrics.dashboardQuickSettingsEnabled) in favor of
+    // ScreenRecCard, which took over the slot when the center notch's
+    // record strip was removed.
+    Item {
         id: rightCard
         anchors { right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: root.gap }
         width: root.colW
+
+        QuickSettings {
+            anchors.fill: parent
+            visible: Theme.dashboardQuickSettingsEnabled
+        }
+
+        ScreenRecCard {
+            anchors.fill: parent
+            visible: !Theme.dashboardQuickSettingsEnabled
+        }
     }
 
     // ── Center column ─────────────────────────────────────────────────────────
@@ -98,8 +118,11 @@ Item {
             topMargin: root.gap
         }
 
+        // Off by default (see Metrics.dashboardClockEnabled) — duplicates the
+        // clock already in the right bar. PlayerCard below fills the space.
         ClockCard {
             id: clockCard
+            visible: Theme.dashboardClockEnabled
             anchors { left: parent.left; right: parent.right; top: parent.top }
             height: root.clockH
         }
@@ -107,7 +130,8 @@ Item {
         PlayerCard {
             anchors {
                 left:   parent.left;  right:  parent.right
-                top:    clockCard.bottom; topMargin: root.gap
+                top:    Theme.dashboardClockEnabled ? clockCard.bottom : parent.top
+                topMargin: Theme.dashboardClockEnabled ? root.gap : 0
                 bottom: parent.bottom
             }
         }

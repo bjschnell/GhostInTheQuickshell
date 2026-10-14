@@ -37,6 +37,7 @@ QtObject {
     property var dashboardStats: IpcHandler {
         target: "dashboard-stats"
         function toggle() {
+            if (!Theme.dashboardStatsEnabled) return
             if(Popups.anyOpen && !Popups.dashboardOpen){
                 Popups.closeAll()
                 Popups.dashboardOpen = true
@@ -52,39 +53,36 @@ QtObject {
         }
     }
 
+    // Target name kept as "dashboard-launcher" for compatibility with existing
+    // keybinds, even though the launcher is now its own floating popup rather
+    // than a Dashboard page — see LauncherPopup.qml.
     property var dashboardLauncher: IpcHandler {
         target: "dashboard-launcher"
         function toggle() {
-            if(Popups.anyOpen && !Popups.dashboardOpen){
-                Popups.closeAll()
-                Popups.dashboardOpen = true
-                Popups.dashboardPage = "launcher"
-            } else if(Popups.dashboardOpen && Popups.dashboardPage != "launcher") {
-                Popups.dashboardPage = "launcher"
-            } else {
-                var next = !Popups.dashboardOpen
-                Popups.closeAll()
-                Popups.dashboardOpen = next
-                if (next) Popups.dashboardPage = "launcher"
-            }
+            var next = !Popups.launcherOpen
+            Popups.closeAll()
+            Popups.launcherOpen = next
+        }
+    }
+
+    // Target names kept as "dashboard-agents" / "dashboard-config" for
+    // keybind compatibility, even though both are now their own floating
+    // popups rather than Dashboard pages — see AgentsPopup.qml / ConfigPopup.qml.
+    property var dashboardAgents: IpcHandler {
+        target: "dashboard-agents"
+        function toggle() {
+            var next = !Popups.agentsOpen
+            Popups.closeAll()
+            Popups.agentsOpen = next
         }
     }
 
     property var dashboardConfig: IpcHandler {
         target: "dashboard-config"
         function toggle() {
-            if(Popups.anyOpen && !Popups.dashboardOpen){
-                Popups.closeAll()
-                Popups.dashboardOpen = true
-                Popups.dashboardPage = "config"
-            } else if(Popups.dashboardOpen && Popups.dashboardPage != "config") {
-                Popups.dashboardPage = "config"
-            } else {
-                var next = !Popups.dashboardOpen
-                Popups.closeAll()
-                Popups.dashboardOpen = next
-                if (next) Popups.dashboardPage = "config"
-            }
+            var next = !Popups.configOpen
+            Popups.closeAll()
+            Popups.configOpen = next
         }
     }
 
@@ -238,17 +236,21 @@ QtObject {
         }
     }
 
+    // The "pending setup" step (ShellState.screenRecord) used to hold here
+    // while the center notch showed a capture/audio picker and a Record
+    // button to actually launch it — that strip lived only in the now-removed
+    // CenterContent.qml, so this goes straight to start/stop instead. Capture
+    // target and audio source just use whatever was last saved.
     property var screenRec: IpcHandler {
         target: "screenrec-on"
         function toggle() {
             if (ScreenRecService.recording) {
-                 ScreenRecService.stopRecording()
-             } else if (ShellState.screenRecord) {
-                 ScreenRecService.cancelSetup()
-             } else {
-                 Popups.closeAll()
-                 ShellState.screenRecord = true
-             }
+                Popups.closeAll()
+                ScreenRecService.stopRecording()
+            } else {
+                Popups.closeAll()
+                ScreenRecService.startRecording()
+            }
         }
     }
 

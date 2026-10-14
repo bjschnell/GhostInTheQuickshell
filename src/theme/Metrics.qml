@@ -5,6 +5,21 @@ QtObject {
     // --Bar Toggle--
     property bool barEnabled: false
 
+    // -- Dashboard Stats Tab Toggle --
+    // Off by default: eye candy that never got used over reaching for btop by
+    // muscle memory. Flip true to bring the tab, its page, and its keybind
+    // back — DashStats.qml itself is untouched either way.
+    property bool dashboardStatsEnabled: false
+
+    // -- Dashboard Home Card Toggles --
+    // Both off by default. ClockCard duplicated the clock already in the
+    // right bar; QuickSettings' only two used tiles (screen capture, focus
+    // mode) already have their own keybinds (see KeybindService), and
+    // Bluetooth is reached through the right bar's network popup instead.
+    // Neither card file is touched — flip true to bring one back.
+    property bool dashboardClockEnabled:         false
+    property bool dashboardQuickSettingsEnabled: false
+
     // -- Bar Exclusion --
     // false: the bar never reserves screen space. Windows sit at full screen
     // and the notches float above them when revealed, so nothing ever reflows
@@ -42,9 +57,6 @@ QtObject {
 
     // -- Notch Width Constraints --
     // Each notch sizes itself to its content, clamped between min and max.
-    property int lNotchMinWidth: 180
-    property int lNotchMaxWidth: 360
-
     property int cNotchMinWidth: 300
     property int cNotchMaxWidth: 360
 
@@ -58,14 +70,6 @@ QtObject {
     // The reveal strips are wider than the notches they uncover so the edges
     // are forgiving; the hide delays stop a pointer clipping a strip edge from
     // making a notch stutter.
-    property bool leftAutoHide:    true
-    property int  leftRevealWidth: 260
-    property int  leftHideDelay:   400
-
-    property bool centerAutoHide:    true
-    property int  centerRevealWidth: 340
-    property int  centerHideDelay:   400
-
     property bool rightAutoHide:    true
     property int  rightRevealWidth: 260
     property int  rightHideDelay:   400
@@ -101,6 +105,19 @@ QtObject {
     property int wsSpacing:     6
     property int wsPadding:     8
     property int wsRadius:      16
+
+    // -- Workspace HUD --
+    // A transient overlay that flashes center-screen on a workspace switch,
+    // replacing the always-visible corner widget. Bigger than the old bar
+    // dots since it is the only place workspace state is shown at all now.
+    property int hudDotSize:      20
+    property int hudActiveWidth:  46
+    property int hudSpacing:      10
+    property int hudPadding:      18
+    property int hudRadius:       24
+    property int hudCenterOffset: 0    // px added to true vertical screen center; negative moves it up
+    property int hudHoldDuration: 900  // how long it stays up after the last switch
+    property int hudFadeDuration: 180
 
     // -- Animations --
     property int animDuration: 320
