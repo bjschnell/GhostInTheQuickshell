@@ -13,12 +13,18 @@ import "../"
 //   held     — something the shell already knew about asked for it: call
 //              reveal() and it stays out for holdDuration, then retracts.
 //
-// Place it BEFORE the notch content in the parent so it sits underneath and
-// never intercepts taps meant for the content itself.
+// It carries no tap handling and its hover handler is non-blocking, so it
+// never intercepts taps or hover meant for the content beneath it.
 // ────────────────────────────────────────────────────────────────────────────
 
 Item {
     id: root
+
+    // Above the notch content, not under it. Anything above a hover handler
+    // that accepts hover (MouseArea with hoverEnabled or a cursorShape, other
+    // HoverHandlers) steals hover from it; on top, with blocking off, this one
+    // sees the pointer wherever it is and still lets the icons hover and click.
+    z: 1000
 
     // Set autoHide false for the old always-on behaviour.
     property bool autoHide:     true
@@ -54,7 +60,14 @@ Item {
         onTriggered: root.held = false
     }
 
+    // Same mechanic as PopupSlide's self-hover (the mid-right sound control):
+    // a passive HoverHandler that sees through child icons, a stable region
+    // underneath it, and a close timer that absorbs edge flicker.
+    // HoverHandlers block the handlers behind them by default (Qt 6.3+), so
+    // every handler on a child icon must set `blocking: false` or hovering
+    // that icon makes this one report a leave.
     HoverHandler {
+        blocking: false
         enabled: !ShellState.focusMode
         onHoveredChanged: {
             if (hovered) {

@@ -28,7 +28,7 @@ Text {
         }
     ]
 
-    HoverHandler { id: clockHov }
+    HoverHandler { id: clockHov; blocking: false }
     MouseArea {
         anchors.fill: parent
         acceptedButtons:     Qt.LeftButton | Qt.RightButton

@@ -25,6 +25,7 @@ Rectangle {
     }
 
     HoverHandler {
+        blocking: false
         id: hover
         cursorShape: Qt.PointingHandCursor
     }

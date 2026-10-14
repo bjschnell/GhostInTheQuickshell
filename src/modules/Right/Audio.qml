@@ -28,6 +28,7 @@ Item {
     readonly property int pct: sink?.ready ? Math.round(sink.audio.volume * 100) : 0
 
     HoverHandler {
+        blocking: false
         id: hov
     }
 
