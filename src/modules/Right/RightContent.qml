@@ -27,10 +27,10 @@ Item {
         visible: opacity > 0
         Behavior on opacity { NumberAnimation { duration: 150 } }
 
-        CavaVisualizer{}
         ControlPanel{}
         LayoutDisplayer{}
         Network{}
+        AirPods{}
         Audio{}
         Clock{}
         SysTray{}
